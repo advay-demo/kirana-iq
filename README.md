@@ -1,1 +1,1 @@
-# kirana-iq
+# KiranaIQ
