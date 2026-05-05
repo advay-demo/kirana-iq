@@ -22,37 +22,38 @@ function Navbar() {
           : "bg-transparent"
       }`}
     >
-
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-4">
 
         {/* LEFT — LOGO */}
-        <div className="font-semibold text-lg">
+        <Link to="/" className="font-semibold text-lg">
           <span className="text-orange-500">Kirana</span>
           <span className="text-orange-300 ml-1">IQ</span>
-        </div>
+        </Link>
 
         {/* CENTER — NAV LINKS */}
         <div className="flex gap-8 text-sm text-gray-600 ml-12">
-          <a href="#" className="hover:text-black transition">
+
+          <Link to="/features" className="hover:text-black transition">
             Features
-          </a>
-          <a href="#" className="hover:text-black transition">
+          </Link>
+
+          <Link to="/how-it-works" className="hover:text-black transition">
             How it Works
-          </a>
-          <a href="#" className="hover:text-black transition">
+          </Link>
+
+          <Link to="/pricing" className="hover:text-black transition">
             Pricing
-          </a>
+          </Link>
+
         </div>
 
         {/* RIGHT — ACTIONS */}
         <div className="flex items-center gap-4">
 
-          {/* Notification */}
           <button className="text-gray-600 hover:text-black transition">
             <Bell className="w-5 h-5" />
           </button>
 
-          {/* Login */}
           <Link to="/login" className="text-sm text-gray-600 hover:text-black">
             Log in
           </Link>
