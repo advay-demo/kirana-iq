@@ -41,7 +41,7 @@ function App() {
       <Route path="/retailer/inventory" element={<Inventory />} />
       <Route path="/retailer/analytics" element={<Analytics />} />
       <Route path="/retailer/notifications"element={<Notifications />}/>
-      <Route path="/retailer/settings" element={<Settings />} />
+      <Route path="/retailer/settings" element={<div>Settings Page</div>} />
 
       
 

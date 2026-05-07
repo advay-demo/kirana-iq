@@ -3,6 +3,7 @@ import AuthNavbar from "../components/AuthNavbar";
 import AuthFooter from "../components/AuthFooter";
 import customer from "../assets/images/customer.jpg";
 import retailer from "../assets/images/retailer.jpg";
+import { Link } from "react-router-dom";
 
 function Login() {
   const [role, setRole] = useState("customer");
@@ -128,9 +129,12 @@ function Login() {
                     </a>
                   </div>
 
-                  <button className="bg-orange-500 py-3 rounded-lg font-medium">
+                  <Link
+                    to="/retailer/dashboard"
+                    className="bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition shadow-md text-center"
+                  >
                     Log in as retailer
-                  </button>
+                  </Link>
 
                 </form>
               </div>
