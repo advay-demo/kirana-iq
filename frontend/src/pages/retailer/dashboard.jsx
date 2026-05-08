@@ -1,299 +1,386 @@
 import React from "react";
+
 import {
-  LayoutDashboard,
-  Package,
-  BarChart3,
-  Bell,
-  Settings,
   Search,
   TrendingUp,
   AlertTriangle,
   Brain,
+  Package,
+  Bell,
+  ArrowUpRight,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+
+import RetailerLayout from "../../layouts/RetailerLayout";
 
 function Dashboard() {
   return (
-    <div className="min-h-screen bg-[#fafafa] flex">
+    <RetailerLayout>
 
-      {/* SIDEBAR */}
-      <aside className="w-72 bg-white border-r border-gray-200 px-6 py-8 flex flex-col justify-between">
+      {/* TOP BAR */}
+      <div className="flex items-center justify-between">
 
         <div>
+          <h1 className="text-5xl font-semibold tracking-tight">
+            Good evening, Advay 👋
+          </h1>
 
-          {/* LOGO */}
-          <div className="font-semibold text-2xl mb-12">
-            <span className="text-orange-500">Kirana</span>
-            <span className="text-orange-300 ml-1">IQ</span>
-          </div>
-
-          {/* NAVIGATION */}
-          <nav className="space-y-2">
-
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-50 text-orange-500 font-medium">
-              <LayoutDashboard className="w-5 h-5" />
-              Dashboard
-            </button>
-
-            <Link
-                to="/retailer/inventory"
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-                >
-                <Package className="w-5 h-5" />
-                Inventory
-            </Link>
-
-            <Link
-                to="/retailer/analytics"
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-                >
-                <BarChart3 className="w-5 h-5" />
-                Analytics
-            </Link>
-
-            <Link
-                to="/retailer/notifications"
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-                >
-                <Bell className="w-5 h-5" />
-                Notifications
-            </Link>
-
-            <Link
-                to="/retailer/settings"
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-                >
-                <Settings className="w-5 h-5" />
-                Settings
-            </Link>
-
-          </nav>
+          <p className="text-gray-500 mt-3 text-lg">
+            Here’s what’s happening in your store today.
+          </p>
         </div>
 
-        {/* USER */}
-        <div className="border border-gray-200 rounded-2xl p-4 flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 font-semibold">
-            A
-          </div>
-
-          <div>
-            <h3 className="font-medium">Advay</h3>
-            <p className="text-sm text-gray-500">
-              Retailer Account
-            </p>
-          </div>
-        </div>
-
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="flex-1 p-8">
-
-        {/* TOPBAR */}
-        <div className="flex items-center justify-between">
-
-          <div>
-            <h1 className="text-3xl font-semibold">
-              Good evening, Advay 👋
-            </h1>
-
-            <p className="text-gray-500 mt-1">
-              Here’s what’s happening in your store today.
-            </p>
-          </div>
+        <div className="flex items-center gap-4">
 
           {/* SEARCH */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-2xl px-5 py-4 w-96 shadow-sm">
 
-            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-3 w-[280px]">
-              <Search className="w-4 h-4 text-gray-400" />
+            <Search className="w-5 h-5 text-gray-400" />
 
-              <input
-                type="text"
-                placeholder="Search inventory..."
-                className="outline-none text-sm w-full bg-transparent"
-              />
+            <input
+              type="text"
+              placeholder="Search inventory..."
+              className="outline-none w-full bg-transparent text-gray-700"
+            />
+
+          </div>
+
+          {/* NOTIFICATION */}
+          <button className="w-14 h-14 bg-white border border-gray-200 rounded-2xl flex items-center justify-center hover:border-orange-200 transition-all duration-300">
+            <Bell className="w-5 h-5 text-gray-600" />
+          </button>
+
+        </div>
+
+      </div>
+
+      {/* STATS */}
+      <div className="grid grid-cols-4 gap-6 mt-10">
+
+        {/* CARD */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-7 hover:-translate-y-1 hover:border-orange-200 transition-all duration-300 shadow-sm">
+
+          <p className="text-gray-500 text-lg">
+            Low Stock
+          </p>
+
+          <div className="flex items-center justify-between mt-6">
+
+            <h2 className="text-6xl font-semibold">
+              12
+            </h2>
+
+            <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <AlertTriangle className="text-orange-500 w-7 h-7" />
             </div>
 
-            <button className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition">
-              <Bell className="w-5 h-5 text-gray-600" />
+          </div>
+
+        </div>
+
+        {/* CARD */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-7 hover:-translate-y-1 hover:border-orange-200 transition-all duration-300 shadow-sm">
+
+          <p className="text-gray-500 text-lg">
+            AI Suggestions
+          </p>
+
+          <div className="flex items-center justify-between mt-6">
+
+            <h2 className="text-6xl font-semibold">
+              28
+            </h2>
+
+            <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <Brain className="text-orange-500 w-7 h-7" />
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* CARD */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-7 hover:-translate-y-1 hover:border-orange-200 transition-all duration-300 shadow-sm">
+
+          <p className="text-gray-500 text-lg">
+            Predicted Demand
+          </p>
+
+          <div className="flex items-center justify-between mt-6">
+
+            <h2 className="text-6xl font-semibold">
+              +18%
+            </h2>
+
+            <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <TrendingUp className="text-orange-500 w-7 h-7" />
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* CARD */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-7 hover:-translate-y-1 hover:border-orange-200 transition-all duration-300 shadow-sm">
+
+          <p className="text-gray-500 text-lg">
+            Products
+          </p>
+
+          <div className="flex items-center justify-between mt-6">
+
+            <h2 className="text-6xl font-semibold">
+              1,284
+            </h2>
+
+            <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <Package className="text-orange-500 w-7 h-7" />
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* SECOND ROW */}
+      <div className="grid grid-cols-3 gap-6 mt-10">
+
+        {/* INVENTORY TABLE */}
+        <div className="col-span-2 bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+
+          <div className="flex items-center justify-between mb-8">
+
+            <h2 className="text-3xl font-semibold">
+              Inventory Overview
+            </h2>
+
+            <button className="text-orange-500 hover:text-orange-600 transition">
+              View all
             </button>
 
           </div>
+
+          <table className="w-full">
+
+            <thead>
+              <tr className="text-left text-gray-400 border-b border-gray-100">
+
+                <th className="pb-4 font-medium">
+                  Product
+                </th>
+
+                <th className="pb-4 font-medium">
+                  Stock
+                </th>
+
+                <th className="pb-4 font-medium">
+                  Status
+                </th>
+
+                <th className="pb-4 font-medium">
+                  Trend
+                </th>
+
+              </tr>
+            </thead>
+
+            <tbody className="text-lg">
+
+              <tr className="border-b border-gray-100">
+                <td className="py-5">Amul Milk</td>
+                <td>24</td>
+
+                <td>
+                  <span className="text-orange-500">
+                    Low
+                  </span>
+                </td>
+
+                <td>↑ 12%</td>
+              </tr>
+
+              <tr className="border-b border-gray-100">
+                <td className="py-5">Parle-G</td>
+                <td>120</td>
+
+                <td>
+                  <span className="text-green-500">
+                    Stable
+                  </span>
+                </td>
+
+                <td>↑ 4%</td>
+              </tr>
+
+              <tr className="border-b border-gray-100">
+                <td className="py-5">Tata Salt</td>
+                <td>12</td>
+
+                <td>
+                  <span className="text-red-500">
+                    Critical
+                  </span>
+                </td>
+
+                <td>↑ 18%</td>
+              </tr>
+
+              <tr>
+                <td className="py-5">Maggi</td>
+                <td>48</td>
+
+                <td>
+                  <span className="text-orange-500">
+                    Low
+                  </span>
+                </td>
+
+                <td>↑ 9%</td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
         </div>
 
-        {/* STATS */}
-        <div className="grid grid-cols-4 gap-6 mt-10">
+        {/* AI CARD */}
+        <div className="bg-black rounded-3xl p-8 text-white flex flex-col justify-between shadow-sm">
 
-          {/* CARD */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
-            <div className="flex items-center justify-between">
+          <div>
 
-              <div>
-                <p className="text-sm text-gray-500">
-                  Low Stock
-                </p>
+            <div className="flex items-center gap-2 text-orange-400 mb-6">
 
-                <h2 className="text-3xl font-semibold mt-2">
-                  12
-                </h2>
-              </div>
+              <Brain className="w-5 h-5" />
 
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-orange-500" />
-              </div>
+              <span>
+                AI Insight
+              </span>
 
             </div>
+
+            <h2 className="text-5xl font-semibold leading-tight">
+              Rice demand may increase by 18% next week.
+            </h2>
+
+            <p className="text-gray-400 mt-6 text-lg leading-relaxed">
+              Based on historical trends and current demand patterns,
+              restocking is recommended within the next 3 days.
+            </p>
+
           </div>
 
-          {/* CARD */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
-            <div className="flex items-center justify-between">
+          <button className="mt-10 bg-white text-black py-4 rounded-2xl hover:bg-gray-100 transition font-medium text-lg">
+            View Insights
+          </button>
 
-              <div>
-                <p className="text-sm text-gray-500">
-                  AI Suggestions
-                </p>
+        </div>
 
-                <h2 className="text-3xl font-semibold mt-2">
-                  28
-                </h2>
-              </div>
+      </div>
+
+      {/* ACTIVITY */}
+      <div className="mt-10 bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+
+        <div className="flex items-center justify-between">
+
+          <h2 className="text-3xl font-semibold">
+            Recent Activity
+          </h2>
+
+          <button className="text-orange-500 hover:text-orange-600 transition">
+            View history
+          </button>
+
+        </div>
+
+        <div className="space-y-5 mt-8">
+
+          {/* ITEM */}
+          <div className="flex items-center justify-between border border-gray-100 rounded-2xl p-5 hover:border-orange-200 transition-all duration-300">
+
+            <div className="flex items-center gap-4">
 
               <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center">
                 <Brain className="w-5 h-5 text-orange-500" />
               </div>
 
+              <div>
+                <h3 className="font-medium text-lg">
+                  AI suggested restocking Maggi
+                </h3>
+
+                <p className="text-gray-500">
+                  Demand expected to rise this weekend.
+                </p>
+              </div>
+
             </div>
+
+            <span className="text-gray-400">
+              2 min ago
+            </span>
+
           </div>
 
-          {/* CARD */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
-            <div className="flex items-center justify-between">
+          {/* ITEM */}
+          <div className="flex items-center justify-between border border-gray-100 rounded-2xl p-5 hover:border-orange-200 transition-all duration-300">
+
+            <div className="flex items-center gap-4">
+
+              <div className="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+              </div>
 
               <div>
-                <p className="text-sm text-gray-500">
-                  Predicted Demand
+                <h3 className="font-medium text-lg">
+                  Tata Salt stock dropped below threshold
+                </h3>
+
+                <p className="text-gray-500">
+                  Inventory level marked as critical.
                 </p>
-
-                <h2 className="text-3xl font-semibold mt-2">
-                  +18%
-                </h2>
-              </div>
-
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-orange-500" />
               </div>
 
             </div>
+
+            <span className="text-gray-400">
+              15 min ago
+            </span>
+
           </div>
 
-          {/* CARD */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
-            <div className="flex items-center justify-between">
+          {/* ITEM */}
+          <div className="flex items-center justify-between border border-gray-100 rounded-2xl p-5 hover:border-orange-200 transition-all duration-300">
+
+            <div className="flex items-center gap-4">
+
+              <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center">
+                <ArrowUpRight className="w-5 h-5 text-green-500" />
+              </div>
 
               <div>
-                <p className="text-sm text-gray-500">
-                  Products
+                <h3 className="font-medium text-lg">
+                  Inventory synced successfully
+                </h3>
+
+                <p className="text-gray-500">
+                  Supplier data updated automatically.
                 </p>
-
-                <h2 className="text-3xl font-semibold mt-2">
-                  1,284
-                </h2>
-              </div>
-
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <Package className="w-5 h-5 text-orange-500" />
               </div>
 
             </div>
-          </div>
 
-        </div>
-
-        {/* CONTENT GRID */}
-        <div className="grid grid-cols-3 gap-6 mt-8">
-
-          {/* INVENTORY TABLE */}
-          <div className="col-span-2 bg-white border border-gray-200 rounded-3xl p-6">
-
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">
-                Inventory Overview
-              </h2>
-
-              <button className="text-sm text-orange-500 hover:underline">
-                View all
-              </button>
-            </div>
-
-            <table className="w-full">
-
-              <thead>
-                <tr className="text-left text-sm text-gray-400 border-b border-gray-100">
-                  <th className="pb-4">Product</th>
-                  <th className="pb-4">Stock</th>
-                  <th className="pb-4">Status</th>
-                  <th className="pb-4">Trend</th>
-                </tr>
-              </thead>
-
-              <tbody className="text-sm">
-
-                <tr className="border-b border-gray-100">
-                  <td className="py-4">Amul Milk</td>
-                  <td>24</td>
-                  <td className="text-orange-500">Low</td>
-                  <td>↑ 12%</td>
-                </tr>
-
-                <tr className="border-b border-gray-100">
-                  <td className="py-4">Parle-G</td>
-                  <td>120</td>
-                  <td className="text-green-500">Stable</td>
-                  <td>↑ 4%</td>
-                </tr>
-
-                <tr className="border-b border-gray-100">
-                  <td className="py-4">Tata Salt</td>
-                  <td>12</td>
-                  <td className="text-red-500">Critical</td>
-                  <td>↑ 18%</td>
-                </tr>
-
-              </tbody>
-
-            </table>
-          </div>
-
-          {/* AI INSIGHTS */}
-          <div className="bg-black text-white rounded-3xl p-6 flex flex-col justify-between">
-
-            <div>
-              <span className="text-sm text-gray-400">
-                AI Insight
-              </span>
-
-              <h2 className="text-2xl font-semibold mt-3 leading-snug">
-                Rice demand may increase by 18% next week.
-              </h2>
-
-              <p className="text-gray-400 mt-4 text-sm leading-relaxed">
-                Based on historical trends and current demand patterns,
-                restocking is recommended within the next 3 days.
-              </p>
-            </div>
-
-            <button className="mt-8 bg-white text-black rounded-xl py-3 hover:bg-gray-100 transition">
-              View Insights
-            </button>
+            <span className="text-gray-400">
+              1 hour ago
+            </span>
 
           </div>
 
         </div>
 
-      </main>
-    </div>
+      </div>
+
+    </RetailerLayout>
   );
 }
 

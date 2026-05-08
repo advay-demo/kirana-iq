@@ -1,52 +1,138 @@
-import { Routes, Route } from "react-router-dom";
+import React from "react";
 
-import MainLayout from "./layouts/MainLayout";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Features from "./pages/Features";
-import Pricing from "./pages/Pricing";
-import HowItWorks from "./pages/HowItWorks";
-import Dashboard from "./pages/retailer/Dashboard";
-import Inventory from "./pages/retailer/Inventory";
-import Analytics from "./pages/retailer/Analytics";
-import Notifications from "./pages/retailer/Notifications";
-import Settings from "./pages/retailer/Settings";
+import {
+  LayoutDashboard,
+  Package,
+  BarChart3,
+  Bell,
+  Settings,
+  Brain,
+} from "lucide-react";
 
 
+import { Link, useLocation } from "react-router-dom";
 
+function RetailerLayout({ children }) {
+  const location = useLocation();
 
+  const navItems = [
+    {
+      name: "Dashboard",
+      path: "/retailer/dashboard",
+      icon: LayoutDashboard,
+    },
 
-function App() {
+    {
+      name: "Inventory",
+      path: "/retailer/inventory",
+      icon: Package,
+    },
+
+    {
+      name: "Analytics",
+      path: "/retailer/analytics",
+      icon: BarChart3,
+    },
+    
+    {
+      name: "AI Insights",
+      path: "/retailer/ai-insights",
+      icon: Brain,
+    },
+
+    {
+      name: "Notifications",
+      path: "/retailer/notifications",
+      icon: Bell,
+    },
+
+    {
+      name: "Settings",
+      path: "/retailer/settings",
+      icon: Settings,
+    },
+  ];
+
   return (
-    <Routes>
+    <div className="min-h-screen bg-[#fafafa] flex">
 
-      {/* MAIN SITE (with navbar/footer layout) */}
-      <Route
-        path="/"
-        element={
-          <MainLayout>
-            <div className="pt-20">
-              <Home />
-            </div>
-          </MainLayout>
-        }
-      />
-      <Route path="/features" element={<Features />} />
-      <Route path="/how-it-works" element={<HowItWorks />} />
-      <Route path="/pricing" element={<Pricing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/retailer/dashboard" element={<Dashboard />} />
-      <Route path="/retailer/inventory" element={<Inventory />} />
-      <Route path="/retailer/analytics" element={<Analytics />} />
-      <Route path="/retailer/notifications"element={<Notifications />}/>
-      <Route path="/retailer/settings" element={<div>Settings Page</div>} />
+      {/* SIDEBAR */}
+      <aside className="w-72 bg-white border-r border-gray-200 px-6 py-8 flex flex-col justify-between">
 
-      
+        <div>
 
-    </Routes>
+          {/* LOGO */}
+          <Link
+            to="/"
+            className="font-semibold text-2xl mb-12 block"
+          >
+            <span className="text-orange-500">
+              Kirana
+            </span>
+
+            <span className="text-orange-300 ml-1">
+              IQ
+            </span>
+          </Link>
+
+          {/* NAV */}
+          <nav className="space-y-2">
+
+            {navItems.map((item) => {
+              const Icon = item.icon;
+
+              const active =
+                location.pathname === item.path;
+
+              return (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${
+                    active
+                      ? "bg-orange-50 text-orange-500 font-medium"
+                      : "hover:bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+
+                  {item.name}
+                </Link>
+              );
+            })}
+
+          </nav>
+
+        </div>
+
+        {/* USER */}
+        <div className="border border-gray-200 rounded-2xl p-4 flex items-center gap-3">
+
+          <div className="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 font-semibold">
+            A
+          </div>
+
+          <div>
+            <h3 className="font-medium">
+              Advay
+            </h3>
+
+            <p className="text-sm text-gray-500">
+              Retailer Account
+            </p>
+          </div>
+
+        </div>
+
+      </aside>
+
+      {/* MAIN */}
+      <main className="flex-1 p-8">
+        {children}
+      </main>
+
+    </div>
   );
 }
 
-export default App;
+export default RetailerLayout;
