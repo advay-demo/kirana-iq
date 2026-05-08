@@ -1,346 +1,184 @@
 import React from "react";
-
 import {
-  LayoutDashboard,
-  Package,
-  BarChart3,
-  Bell,
-  Settings as SettingsIcon,
-  Store,
-  User,
-  Shield,
+  AlertTriangle,
   Brain,
-  Moon,
+  TrendingUp,
+  Clock3,
+  CheckCircle2,
 } from "lucide-react";
 
-import { Link } from "react-router-dom";
+import RetailerLayout from "../../layouts/RetailerLayout";
 
-function Settings() {
+const notifications = [
+  {
+    type: "critical",
+    title: "Tata Salt stock running critically low",
+    description:
+      "Current stock has dropped below the recommended safety threshold. Immediate restocking is suggested.",
+    time: "2 mins ago",
+    icon: AlertTriangle,
+  },
+  {
+    type: "ai",
+    title: "AI predicts increased snack demand this weekend",
+    description:
+      "Based on recent sales behavior and seasonal patterns, snack demand may rise by approximately 22%.",
+    time: "12 mins ago",
+    icon: Brain,
+  },
+  {
+    type: "trend",
+    title: "Milk category sales increased this week",
+    description:
+      "Dairy product sales have shown consistent upward growth compared to the previous week.",
+    time: "1 hour ago",
+    icon: TrendingUp,
+  },
+  {
+    type: "system",
+    title: "Inventory synchronization completed",
+    description:
+      "Supplier product data was successfully refreshed and synced across all tracked items.",
+    time: "3 hours ago",
+    icon: CheckCircle2,
+  },
+  {
+    type: "system",
+    title: "Daily AI forecast generated",
+    description:
+      "Your daily demand forecast report is now available for review in analytics.",
+    time: "6 hours ago",
+    icon: Clock3,
+  },
+];
+
+function Notifications() {
   return (
-    <div className="min-h-screen bg-[#fafafa] flex">
+    <RetailerLayout>
 
-      {/* SIDEBAR */}
-      <aside className="w-72 bg-white border-r border-gray-200 px-6 py-8 flex flex-col justify-between">
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
 
         <div>
-
-          {/* LOGO */}
-          <div className="font-semibold text-2xl mb-12">
-            <span className="text-orange-500">Kirana</span>
-            <span className="text-orange-300 ml-1">IQ</span>
-          </div>
-
-          {/* NAV */}
-          <nav className="space-y-2">
-
-            <Link
-              to="/retailer/dashboard"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-            >
-              <LayoutDashboard className="w-5 h-5" />
-              Dashboard
-            </Link>
-
-            <Link
-              to="/retailer/inventory"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-            >
-              <Package className="w-5 h-5" />
-              Inventory
-            </Link>
-
-            <Link
-              to="/retailer/analytics"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-            >
-              <BarChart3 className="w-5 h-5" />
-              Analytics
-            </Link>
-
-            <Link
-              to="/retailer/notifications"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-            >
-              <Bell className="w-5 h-5" />
-              Notifications
-            </Link>
-
-            <Link
-              to="/retailer/settings"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-50 text-orange-500 font-medium"
-            >
-              <SettingsIcon className="w-5 h-5" />
-              Settings
-            </Link>
-
-          </nav>
-        </div>
-
-        {/* USER */}
-        <div className="border border-gray-200 rounded-2xl p-4 flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 font-semibold">
-            A
-          </div>
-
-          <div>
-            <h3 className="font-medium">Advay</h3>
-            <p className="text-sm text-gray-500">
-              Retailer Account
-            </p>
-          </div>
-        </div>
-
-      </aside>
-
-      {/* MAIN */}
-      <main className="flex-1 p-8">
-
-        {/* HEADER */}
-        <div>
-          <h1 className="text-3xl font-semibold">
-            Settings
+          <h1 className="text-4xl font-semibold tracking-tight">
+            Notifications
           </h1>
 
-          <p className="text-gray-500 mt-1">
-            Manage your store preferences and account settings.
+          <p className="text-gray-500 mt-2 text-lg">
+            Stay updated with alerts, inventory changes, and AI recommendations.
           </p>
         </div>
 
-        {/* SETTINGS GRID */}
-        <div className="grid grid-cols-2 gap-6 mt-10">
+        <button className="bg-white border border-gray-200 px-6 py-4 rounded-2xl hover:bg-gray-50 transition shadow-sm">
+          Mark all as read
+        </button>
 
-          {/* STORE SETTINGS */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
+      </div>
 
-            <div className="flex items-center gap-3 mb-6">
+      {/* FEED */}
+      <div className="mt-10 bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
 
-              <div className="w-11 h-11 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <Store className="w-5 h-5 text-orange-500" />
-              </div>
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-semibold">
+            Recent Activity
+          </h2>
 
-              <div>
-                <h2 className="text-xl font-semibold">
-                  Store Information
-                </h2>
+          <span className="text-sm text-gray-400">
+            5 unread notifications
+          </span>
+        </div>
 
-                <p className="text-sm text-gray-500">
-                  Update your business details
-                </p>
-              </div>
+        <div className="space-y-5">
 
-            </div>
+          {notifications.map((item, index) => {
+            const Icon = item.icon;
 
-            <div className="space-y-5">
+            return (
+              <div
+                key={index}
+                className="flex items-start justify-between border border-gray-100 rounded-3xl p-6 hover:border-orange-200 hover:-translate-y-1 transition-all duration-300"
+              >
 
-              <div>
-                <label className="text-sm text-gray-500">
-                  Store Name
-                </label>
+                <div className="flex gap-5">
 
-                <input
-                  type="text"
-                  defaultValue="Advay Retail"
-                  className="w-full mt-2 border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:border-orange-400"
-                />
-              </div>
+                  {/* ICON */}
+                  <div
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                      item.type === "critical"
+                        ? "bg-red-100"
+                        : item.type === "ai"
+                        ? "bg-orange-100"
+                        : item.type === "trend"
+                        ? "bg-green-100"
+                        : "bg-gray-100"
+                    }`}
+                  >
+                    <Icon
+                      className={`w-6 h-6 ${
+                        item.type === "critical"
+                          ? "text-red-500"
+                          : item.type === "ai"
+                          ? "text-orange-500"
+                          : item.type === "trend"
+                          ? "text-green-500"
+                          : "text-gray-500"
+                      }`}
+                    />
+                  </div>
 
-              <div>
-                <label className="text-sm text-gray-500">
-                  Email Address
-                </label>
+                  {/* TEXT */}
+                  <div>
+                    <div className="flex items-center gap-3">
 
-                <input
-                  type="email"
-                  defaultValue="advay@gmail.com"
-                  className="w-full mt-2 border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:border-orange-400"
-                />
-              </div>
+                      <h3 className="text-lg font-semibold">
+                        {item.title}
+                      </h3>
 
-              <button className="bg-orange-500 text-white px-5 py-3 rounded-2xl hover:bg-orange-600 transition">
-                Save Changes
-              </button>
+                      <div className="w-2.5 h-2.5 rounded-full bg-orange-500"></div>
 
-            </div>
-          </div>
+                    </div>
 
-          {/* ACCOUNT */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
+                    <p className="text-gray-500 mt-3 leading-relaxed max-w-3xl">
+                      {item.description}
+                    </p>
+                  </div>
 
-            <div className="flex items-center gap-3 mb-6">
-
-              <div className="w-11 h-11 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <User className="w-5 h-5 text-orange-500" />
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold">
-                  Account Preferences
-                </h2>
-
-                <p className="text-sm text-gray-500">
-                  Customize your dashboard experience
-                </p>
-              </div>
-
-            </div>
-
-            <div className="space-y-5">
-
-              {/* TOGGLE */}
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-medium">
-                    Email Notifications
-                  </h3>
-
-                  <p className="text-sm text-gray-500 mt-1">
-                    Receive alerts via email
-                  </p>
                 </div>
 
-                <button className="w-12 h-7 bg-orange-500 rounded-full flex items-center px-1">
-                  <div className="w-5 h-5 bg-white rounded-full ml-auto"></div>
-                </button>
+                {/* TIME */}
+                <span className="text-sm text-gray-400 whitespace-nowrap">
+                  {item.time}
+                </span>
 
               </div>
-
-              {/* TOGGLE */}
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-medium">
-                    Dark Mode
-                  </h3>
-
-                  <p className="text-sm text-gray-500 mt-1">
-                    Switch dashboard appearance
-                  </p>
-                </div>
-
-                <button className="w-12 h-7 bg-gray-200 rounded-full flex items-center px-1">
-                  <div className="w-5 h-5 bg-white rounded-full"></div>
-                </button>
-
-              </div>
-
-              {/* TOGGLE */}
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-medium">
-                    AI Recommendations
-                  </h3>
-
-                  <p className="text-sm text-gray-500 mt-1">
-                    Enable smart inventory insights
-                  </p>
-                </div>
-
-                <button className="w-12 h-7 bg-orange-500 rounded-full flex items-center px-1">
-                  <div className="w-5 h-5 bg-white rounded-full ml-auto"></div>
-                </button>
-
-              </div>
-
-            </div>
-          </div>
+            );
+          })}
 
         </div>
 
-        {/* SECURITY + AI */}
-        <div className="grid grid-cols-2 gap-6 mt-6">
+      </div>
 
-          {/* SECURITY */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
+      {/* AI SUMMARY */}
+      <div className="mt-8 bg-black text-white rounded-3xl p-10 shadow-sm">
 
-            <div className="flex items-center gap-3 mb-6">
+        <span className="text-orange-400 text-sm font-medium">
+          Daily AI Summary
+        </span>
 
-              <div className="w-11 h-11 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-orange-500" />
-              </div>
+        <h2 className="text-4xl font-semibold mt-5 leading-tight max-w-4xl">
+          Inventory risk detected across 3 categories. Recommended restocking within the next 48 hours.
+        </h2>
 
-              <div>
-                <h2 className="text-xl font-semibold">
-                  Security
-                </h2>
+        <p className="text-gray-400 mt-6 max-w-3xl text-lg leading-relaxed">
+          KiranaIQ analyzed sales velocity, historical purchasing patterns,
+          supplier availability, and current stock behavior to generate
+          today’s predictive insights.
+        </p>
 
-                <p className="text-sm text-gray-500">
-                  Manage account protection
-                </p>
-              </div>
+      </div>
 
-            </div>
-
-            <div className="space-y-4">
-
-              <button className="w-full border border-gray-200 rounded-2xl py-3 hover:bg-gray-50 transition">
-                Change Password
-              </button>
-
-              <button className="w-full border border-gray-200 rounded-2xl py-3 hover:bg-gray-50 transition">
-                Enable 2FA
-              </button>
-
-            </div>
-
-          </div>
-
-          {/* AI SETTINGS */}
-          <div className="bg-black text-white rounded-3xl p-6">
-
-            <div className="flex items-center gap-3 mb-6">
-
-              <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center">
-                <Brain className="w-5 h-5 text-orange-400" />
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold">
-                  AI Configuration
-                </h2>
-
-                <p className="text-sm text-gray-400">
-                  Fine-tune AI prediction behavior
-                </p>
-              </div>
-
-            </div>
-
-            <div className="space-y-5">
-
-              <div>
-                <label className="text-sm text-gray-400">
-                  Prediction Sensitivity
-                </label>
-
-                <input
-                  type="range"
-                  className="w-full mt-3 accent-orange-500"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-400">
-                  Forecast Window
-                </label>
-
-                <select className="w-full mt-3 bg-white/10 border border-white/10 rounded-2xl px-4 py-3 outline-none">
-                  <option>7 Days</option>
-                  <option>14 Days</option>
-                  <option>30 Days</option>
-                </select>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </main>
-    </div>
+    </RetailerLayout>
   );
 }
 
-export default Settings;
+export default Notifications;

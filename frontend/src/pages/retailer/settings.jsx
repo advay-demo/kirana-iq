@@ -1,345 +1,143 @@
 import React from "react";
-
 import {
-  LayoutDashboard,
-  Package,
-  BarChart3,
-  Bell,
-  Settings as SettingsIcon,
   Store,
   User,
   Shield,
   Brain,
-  Moon,
 } from "lucide-react";
-
-import { Link } from "react-router-dom";
+import RetailerLayout from "../../layouts/RetailerLayout";
 
 function Settings() {
   return (
-    <div className="min-h-screen bg-[#fafafa] flex">
+    <RetailerLayout>
 
-      {/* SIDEBAR */}
-      <aside className="w-72 bg-white border-r border-gray-200 px-6 py-8 flex flex-col justify-between">
+      <div>
+        <h1 className="text-4xl font-semibold tracking-tight">
+          Settings
+        </h1>
 
-        <div>
+        <p className="text-gray-500 mt-2 text-lg">
+          Manage your store preferences and account settings.
+        </p>
+      </div>
 
-          {/* LOGO */}
-          <div className="font-semibold text-2xl mb-12">
-            <span className="text-orange-500">Kirana</span>
-            <span className="text-orange-300 ml-1">IQ</span>
-          </div>
+      <div className="grid grid-cols-2 gap-6 mt-10">
 
-          {/* NAV */}
-          <nav className="space-y-2">
-
-            <Link
-              to="/retailer/dashboard"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-            >
-              <LayoutDashboard className="w-5 h-5" />
-              Dashboard
-            </Link>
-
-            <Link
-              to="/retailer/inventory"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-            >
-              <Package className="w-5 h-5" />
-              Inventory
-            </Link>
-
-            <Link
-              to="/retailer/analytics"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-            >
-              <BarChart3 className="w-5 h-5" />
-              Analytics
-            </Link>
-
-            <Link
-              to="/retailer/notifications"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 text-gray-600 transition"
-            >
-              <Bell className="w-5 h-5" />
-              Notifications
-            </Link>
-
-            <Link
-              to="/retailer/settings"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-50 text-orange-500 font-medium"
-            >
-              <SettingsIcon className="w-5 h-5" />
-              Settings
-            </Link>
-
-          </nav>
-        </div>
-
-        {/* USER */}
-        <div className="border border-gray-200 rounded-2xl p-4 flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 font-semibold">
-            A
-          </div>
-
-          <div>
-            <h3 className="font-medium">Advay</h3>
-            <p className="text-sm text-gray-500">
-              Retailer Account
-            </p>
-          </div>
-        </div>
-
-      </aside>
-
-      {/* MAIN */}
-      <main className="flex-1 p-8">
-
-        {/* HEADER */}
-        <div>
-          <h1 className="text-3xl font-semibold">
-            Settings
-          </h1>
-
-          <p className="text-gray-500 mt-1">
-            Manage your store preferences and account settings.
-          </p>
-        </div>
-
-        {/* SETTINGS GRID */}
-        <div className="grid grid-cols-2 gap-6 mt-10">
-
-          {/* STORE SETTINGS */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
-
-            <div className="flex items-center gap-3 mb-6">
-
-              <div className="w-11 h-11 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <Store className="w-5 h-5 text-orange-500" />
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold">
-                  Store Information
-                </h2>
-
-                <p className="text-sm text-gray-500">
-                  Update your business details
-                </p>
-              </div>
-
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <Store className="w-6 h-6 text-orange-500" />
             </div>
 
-            <div className="space-y-5">
+            <div>
+              <h2 className="text-2xl font-semibold">
+                Store Information
+              </h2>
 
-              <div>
-                <label className="text-sm text-gray-500">
-                  Store Name
-                </label>
+              <p className="text-gray-500 mt-1">
+                Update your business details
+              </p>
+            </div>
+          </div>
 
-                <input
-                  type="text"
-                  defaultValue="Advay Retail"
-                  className="w-full mt-2 border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:border-orange-400"
-                />
-              </div>
+          <div className="space-y-6">
+            <input
+              defaultValue="Advay Retail"
+              className="w-full border border-gray-200 rounded-2xl px-5 py-4"
+            />
 
-              <div>
-                <label className="text-sm text-gray-500">
-                  Email Address
-                </label>
+            <input
+              defaultValue="advay@gmail.com"
+              className="w-full border border-gray-200 rounded-2xl px-5 py-4"
+            />
 
-                <input
-                  type="email"
-                  defaultValue="advay@gmail.com"
-                  className="w-full mt-2 border border-gray-200 rounded-2xl px-4 py-3 outline-none focus:border-orange-400"
-                />
-              </div>
+            <button className="bg-orange-500 text-white px-6 py-4 rounded-2xl">
+              Save Changes
+            </button>
+          </div>
+        </div>
 
-              <button className="bg-orange-500 text-white px-5 py-3 rounded-2xl hover:bg-orange-600 transition">
-                Save Changes
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <User className="w-6 h-6 text-orange-500" />
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-semibold">
+                Account Preferences
+              </h2>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+
+            <div className="flex justify-between">
+              <span>Email Notifications</span>
+
+              <button className="w-14 h-8 bg-orange-500 rounded-full flex items-center px-1">
+                <div className="w-6 h-6 bg-white rounded-full ml-auto"></div>
               </button>
-
             </div>
+
+            <div className="flex justify-between">
+              <span>Dark Mode</span>
+
+              <button className="w-14 h-8 bg-gray-200 rounded-full flex items-center px-1">
+                <div className="w-6 h-6 bg-white rounded-full"></div>
+              </button>
+            </div>
+
           </div>
-
-          {/* ACCOUNT */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
-
-            <div className="flex items-center gap-3 mb-6">
-
-              <div className="w-11 h-11 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <User className="w-5 h-5 text-orange-500" />
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold">
-                  Account Preferences
-                </h2>
-
-                <p className="text-sm text-gray-500">
-                  Customize your dashboard experience
-                </p>
-              </div>
-
-            </div>
-
-            <div className="space-y-5">
-
-              {/* TOGGLE */}
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-medium">
-                    Email Notifications
-                  </h3>
-
-                  <p className="text-sm text-gray-500 mt-1">
-                    Receive alerts via email
-                  </p>
-                </div>
-
-                <button className="w-12 h-7 bg-orange-500 rounded-full flex items-center px-1">
-                  <div className="w-5 h-5 bg-white rounded-full ml-auto"></div>
-                </button>
-
-              </div>
-
-              {/* TOGGLE */}
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-medium">
-                    Dark Mode
-                  </h3>
-
-                  <p className="text-sm text-gray-500 mt-1">
-                    Switch dashboard appearance
-                  </p>
-                </div>
-
-                <button className="w-12 h-7 bg-gray-200 rounded-full flex items-center px-1">
-                  <div className="w-5 h-5 bg-white rounded-full"></div>
-                </button>
-
-              </div>
-
-              {/* TOGGLE */}
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-medium">
-                    AI Recommendations
-                  </h3>
-
-                  <p className="text-sm text-gray-500 mt-1">
-                    Enable smart inventory insights
-                  </p>
-                </div>
-
-                <button className="w-12 h-7 bg-orange-500 rounded-full flex items-center px-1">
-                  <div className="w-5 h-5 bg-white rounded-full ml-auto"></div>
-                </button>
-
-              </div>
-
-            </div>
-          </div>
-
         </div>
 
-        {/* SECURITY + AI */}
-        <div className="grid grid-cols-2 gap-6 mt-6">
+      </div>
 
-          {/* SECURITY */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6">
+      <div className="grid grid-cols-2 gap-6 mt-6">
 
-            <div className="flex items-center gap-3 mb-6">
-
-              <div className="w-11 h-11 rounded-2xl bg-orange-100 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-orange-500" />
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold">
-                  Security
-                </h2>
-
-                <p className="text-sm text-gray-500">
-                  Manage account protection
-                </p>
-              </div>
-
-            </div>
-
-            <div className="space-y-4">
-
-              <button className="w-full border border-gray-200 rounded-2xl py-3 hover:bg-gray-50 transition">
-                Change Password
-              </button>
-
-              <button className="w-full border border-gray-200 rounded-2xl py-3 hover:bg-gray-50 transition">
-                Enable 2FA
-              </button>
-
-            </div>
-
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+          <div className="flex items-center gap-4 mb-8">
+            <Shield className="text-orange-500" />
+            <h2 className="text-2xl font-semibold">
+              Security
+            </h2>
           </div>
 
-          {/* AI SETTINGS */}
-          <div className="bg-black text-white rounded-3xl p-6">
+          <div className="space-y-4">
+            <button className="w-full border rounded-2xl py-4">
+              Change Password
+            </button>
 
-            <div className="flex items-center gap-3 mb-6">
-
-              <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center">
-                <Brain className="w-5 h-5 text-orange-400" />
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold">
-                  AI Configuration
-                </h2>
-
-                <p className="text-sm text-gray-400">
-                  Fine-tune AI prediction behavior
-                </p>
-              </div>
-
-            </div>
-
-            <div className="space-y-5">
-
-              <div>
-                <label className="text-sm text-gray-400">
-                  Prediction Sensitivity
-                </label>
-
-                <input
-                  type="range"
-                  className="w-full mt-3 accent-orange-500"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-400">
-                  Forecast Window
-                </label>
-
-                <select className="w-full mt-3 bg-white/10 border border-white/10 rounded-2xl px-4 py-3 outline-none">
-                  <option>7 Days</option>
-                  <option>14 Days</option>
-                  <option>30 Days</option>
-                </select>
-              </div>
-
-            </div>
-
+            <button className="w-full border rounded-2xl py-4">
+              Enable 2FA
+            </button>
           </div>
-
         </div>
 
-      </main>
-    </div>
+        <div className="bg-black text-white rounded-3xl p-8 shadow-sm">
+          <div className="flex items-center gap-4 mb-8">
+            <Brain className="text-orange-400" />
+
+            <h2 className="text-2xl font-semibold">
+              AI Configuration
+            </h2>
+          </div>
+
+          <input
+            type="range"
+            className="w-full accent-orange-500"
+          />
+
+          <select className="w-full mt-6 bg-white/10 rounded-2xl px-5 py-4">
+            <option>7 Days</option>
+            <option>14 Days</option>
+            <option>30 Days</option>
+          </select>
+        </div>
+
+      </div>
+
+    </RetailerLayout>
   );
 }
 

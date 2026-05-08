@@ -12,6 +12,10 @@ import Inventory from "./pages/retailer/Inventory";
 import Analytics from "./pages/retailer/Analytics";
 import Notifications from "./pages/retailer/Notifications";
 import Settings from "./pages/retailer/Settings";
+import ProductDetails from "./pages/retailer/ProductDetails";
+import AIInsights from "./pages/retailer/AIInsights";
+
+
 
 
 
@@ -42,6 +46,8 @@ function App() {
       <Route path="/retailer/analytics" element={<Analytics />} />
       <Route path="/retailer/notifications"element={<Notifications />}/>
       <Route path="/retailer/settings" element={<Settings />} />
+      <Route path="/retailer/products/:id" element={<ProductDetails />}/>
+      <Route path="/retailer/ai-insights" element={<AIInsights />} />
 
       
 
