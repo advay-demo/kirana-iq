@@ -8,12 +8,20 @@ import {
   Settings,
   Brain,
 } from "lucide-react";
-
-
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function RetailerLayout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userName");
+
+    navigate("/login");
+  };
 
   const navItems = [
     {
@@ -120,6 +128,13 @@ function RetailerLayout({ children }) {
             <p className="text-sm text-gray-500">
               Retailer Account
             </p>
+
+            <button
+              onClick={handleLogout}
+              className="text-xs text-red-500 hover:text-red-600 mt-1"
+            >
+              Logout
+            </button>
           </div>
 
         </div>

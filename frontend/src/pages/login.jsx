@@ -3,14 +3,50 @@ import AuthNavbar from "../components/AuthNavbar";
 import AuthFooter from "../components/AuthFooter";
 import customer from "../assets/images/customer.jpg";
 import retailer from "../assets/images/retailer.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../services/auth";
 
 function Login() {
   const [role, setRole] = useState("customer");
+  const navigate = useNavigate();
+
+  const [loginData, setLoginData] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    setLoginData({
+      ...loginData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await loginUser(loginData);
+
+      localStorage.setItem("accessToken", response.tokens.access);
+      localStorage.setItem("refreshToken", response.tokens.refresh);
+      localStorage.setItem("userRole", response.user.role);
+      localStorage.setItem("userName", response.user.name);
+
+      if (response.user.role === "retailer") {
+        navigate("/retailer/dashboard");
+      } else {
+        navigate("/");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Invalid credentials");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-
       <AuthNavbar />
 
       <div className="flex flex-1 flex-col items-center justify-center px-6">
@@ -19,9 +55,8 @@ function Login() {
         <div className="mb-8 w-full max-w-md">
           <div className="relative flex bg-gray-200 rounded-full p-1 shadow-inner">
 
-            {/* Sliding pill */}
             <div
-              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-white shadow-md transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-white shadow-md transition-all duration-300 ${
                 role === "customer" ? "left-1" : "left-[50%]"
               }`}
             />
@@ -49,16 +84,13 @@ function Login() {
 
         {/* SLIDING CARD */}
         <div className="w-full max-w-4xl h-[420px] overflow-hidden rounded-2xl border border-gray-200 shadow-md">
-
           <div
-            className={`flex w-[200%] h-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              role === "customer"
-                ? "translate-x-0"
-                : "-translate-x-1/2"
+            className={`flex w-[200%] h-full transition-transform duration-700 ${
+              role === "customer" ? "translate-x-0" : "-translate-x-1/2"
             }`}
           >
 
-            {/* 🔥 CUSTOMER PANEL */}
+            {/* CUSTOMER LOGIN */}
             <div
               className="w-1/2 h-full bg-cover bg-center flex items-center justify-center relative"
               style={{ backgroundImage: `url(${customer})` }}
@@ -70,27 +102,35 @@ function Login() {
                   Customer Login
                 </h2>
 
-                <form className="flex flex-col gap-4">
+                <form onSubmit={handleLogin} className="flex flex-col gap-4">
 
                   <input
+                    name="username"
+                    value={loginData.username}
+                    onChange={handleChange}
                     placeholder="Email"
                     className="bg-white/90 text-black rounded-lg px-4 py-3"
                   />
 
                   <input
                     type="password"
+                    name="password"
+                    value={loginData.password}
+                    onChange={handleChange}
                     placeholder="Password"
                     className="bg-white/90 text-black rounded-lg px-4 py-3"
                   />
 
-                  {/* Forgot */}
                   <div className="flex justify-end">
-                    <a className="text-sm text-white/80 hover:text-white">
+                    <button
+                      type="button"
+                      className="text-sm text-white/80 hover:text-white"
+                    >
                       Forgot password?
-                    </a>
+                    </button>
                   </div>
 
-                  <button className="bg-orange-500 py-3 rounded-lg font-medium">
+                  <button className="bg-orange-500 py-3 rounded-lg font-medium hover:bg-orange-600 transition">
                     Log in as customer
                   </button>
 
@@ -98,7 +138,7 @@ function Login() {
               </div>
             </div>
 
-            {/* 🔥 RETAILER PANEL */}
+            {/* RETAILER LOGIN */}
             <div
               className="w-1/2 h-full bg-cover bg-center flex items-center justify-center relative"
               style={{ backgroundImage: `url(${retailer})` }}
@@ -110,31 +150,37 @@ function Login() {
                   Retailer Login
                 </h2>
 
-                <form className="flex flex-col gap-4">
+                <form onSubmit={handleLogin} className="flex flex-col gap-4">
 
                   <input
-                    placeholder="Email"
+                    name="username"
+                    value={loginData.username}
+                    onChange={handleChange}
+                    placeholder="Phone Number"
                     className="bg-white/90 text-black rounded-lg px-4 py-3"
                   />
 
                   <input
                     type="password"
+                    name="password"
+                    value={loginData.password}
+                    onChange={handleChange}
                     placeholder="Password"
                     className="bg-white/90 text-black rounded-lg px-4 py-3"
                   />
 
                   <div className="flex justify-end">
-                    <a className="text-sm text-white/80 hover:text-white">
+                    <button
+                      type="button"
+                      className="text-sm text-white/80 hover:text-white"
+                    >
                       Forgot password?
-                    </a>
+                    </button>
                   </div>
 
-                  <Link
-                    to="/retailer/dashboard"
-                    className="bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 transition shadow-md text-center"
-                  >
+                  <button className="bg-orange-500 py-3 rounded-lg font-medium hover:bg-orange-600 transition">
                     Log in as retailer
-                  </Link>
+                  </button>
 
                 </form>
               </div>
@@ -143,20 +189,22 @@ function Login() {
           </div>
         </div>
 
-        {/* SIGNUP LINK */}
+        {/* SIGNUP */}
         <div className="w-full max-w-4xl mt-4 flex justify-end">
           <p className="text-sm text-gray-500">
             Don’t have an account?{" "}
-            <a href="/signup" className="text-orange-500 hover:underline">
+            <Link
+              to="/signup"
+              className="text-orange-500 hover:underline"
+            >
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
 
       </div>
 
       <AuthFooter />
-
     </div>
   );
 }
