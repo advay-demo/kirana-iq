@@ -1,45 +1,96 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   TrendingUp,
-  Brain,
-  BarChart3,
+  AlertTriangle,
+  ShieldCheck,
 } from "lucide-react";
-
 import RetailerLayout from "../../layouts/RetailerLayout";
+import { getAnalytics } from "../../services/auth";
 
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
   CartesianGrid,
-  AreaChart,
-  Area,
+  Legend,
 } from "recharts";
 
-const salesData = [
-  { month: "Jan", sales: 2400 },
-  { month: "Feb", sales: 3200 },
-  { month: "Mar", sales: 2800 },
-  { month: "Apr", sales: 4100 },
-  { month: "May", sales: 5200 },
-  { month: "Jun", sales: 6100 },
-];
-
-const demandData = [
-  { day: "Mon", demand: 30 },
-  { day: "Tue", demand: 45 },
-  { day: "Wed", demand: 38 },
-  { day: "Thu", demand: 60 },
-  { day: "Fri", demand: 75 },
-  { day: "Sat", demand: 58 },
-];
-
 function Analytics() {
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  const fetchAnalytics = async () => {
+    try {
+      const data = await getAnalytics();
+      setAnalytics(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <RetailerLayout>
+        <div className="text-2xl font-medium">
+          Loading analytics...
+        </div>
+      </RetailerLayout>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <RetailerLayout>
+        <div className="text-2xl font-medium text-red-500">
+          Failed to load analytics.
+        </div>
+      </RetailerLayout>
+    );
+  }
+
+  const stockHealth = analytics.stock_health;
+  const COLORS = [
+  "#22c55e",
+  "#f97316",
+  "#ef4444",
+];
+
+  const stockHealthData = [
+    {
+      name: "Healthy",
+      value: stockHealth.healthy,
+    },
+    {
+      name: "Low",
+      value: stockHealth.low,
+    },
+    {
+      name: "Critical",
+      value: stockHealth.critical,
+    },
+  ];
+
+  const categoryData = Object.entries(
+    analytics.category_breakdown
+  ).map(([category, count]) => ({
+    category: category.replace("_", " "),
+    count,
+  }));
+
   return (
     <RetailerLayout>
-
       {/* HEADER */}
       <div>
         <h1 className="text-4xl font-semibold tracking-tight">
@@ -47,179 +98,170 @@ function Analytics() {
         </h1>
 
         <p className="text-gray-500 mt-2 text-lg">
-          Monitor sales, demand trends, and AI-powered insights.
+          Visual insights powered by your inventory data.
         </p>
       </div>
 
-      {/* STATS */}
-      <div className="grid grid-cols-3 gap-6 mt-10">
+      {/* METRICS */}
+      <div className="grid grid-cols-4 gap-6 mt-10">
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-gray-500">
+              Inventory Value
+            </p>
 
-        <div className="bg-white border border-gray-200 rounded-3xl p-7 shadow-sm hover:-translate-y-1 hover:border-orange-200 transition-all duration-300">
-          <div className="flex items-center justify-between">
+            <h2 className="text-4xl font-semibold mt-3">
+              ₹{analytics.inventory_value}
+            </h2>
+          </div>
 
-            <div>
-              <p className="text-gray-500 text-lg">
-                Revenue Growth
-              </p>
-
-              <h2 className="text-5xl font-semibold mt-4">
-                +24%
-              </h2>
-            </div>
-
-            <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center">
-              <TrendingUp className="w-7 h-7 text-orange-500" />
-            </div>
-
+          <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center">
+            <TrendingUp className="w-7 h-7 text-green-500" />
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-3xl p-7 shadow-sm hover:-translate-y-1 hover:border-orange-200 transition-all duration-300">
-          <div className="flex items-center justify-between">
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-gray-500">
+              Healthy
+            </p>
 
-            <div>
-              <p className="text-gray-500 text-lg">
-                AI Insights
-              </p>
+            <h2 className="text-5xl font-semibold mt-3">
+              {stockHealth.healthy}
+            </h2>
+          </div>
 
-              <h2 className="text-5xl font-semibold mt-4">
-                18
-              </h2>
-            </div>
-
-            <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center">
-              <Brain className="w-7 h-7 text-orange-500" />
-            </div>
-
+          <div className="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center">
+            <ShieldCheck className="w-7 h-7 text-green-500" />
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-3xl p-7 shadow-sm hover:-translate-y-1 hover:border-orange-200 transition-all duration-300">
-          <div className="flex items-center justify-between">
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-gray-500">
+              Low Stock
+            </p>
 
-            <div>
-              <p className="text-gray-500 text-lg">
-                Monthly Sales
-              </p>
+            <h2 className="text-5xl font-semibold mt-3">
+              {stockHealth.low}
+            </h2>
+          </div>
 
-              <h2 className="text-5xl font-semibold mt-4">
-                ₹61K
-              </h2>
-            </div>
-
-            <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center">
-              <BarChart3 className="w-7 h-7 text-orange-500" />
-            </div>
-
+          <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center">
+            <AlertTriangle className="w-7 h-7 text-orange-500" />
           </div>
         </div>
 
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-gray-500">
+              Critical
+            </p>
+
+            <h2 className="text-5xl font-semibold mt-3">
+              {stockHealth.critical}
+            </h2>
+          </div>
+
+          <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center">
+            <AlertTriangle className="w-7 h-7 text-red-500" />
+          </div>
+        </div>
       </div>
 
       {/* CHARTS */}
-      <div className="grid grid-cols-3 gap-6 mt-8">
+      {/* CHARTS */}
+<div className="grid grid-cols-2 gap-8 mt-10">
 
-        {/* SALES */}
-        <div className="col-span-2 bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+  {/* PIE */}
+  <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+    <h2 className="text-2xl font-semibold mb-6">
+      Stock Health
+    </h2>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold">
-              Sales Overview
-            </h2>
+    <div className="h-[380px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={stockHealthData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="45%"
+            outerRadius={120}
+            innerRadius={55}
+            paddingAngle={5}
+          >
+            {stockHealthData.map((entry, index) => (
+              <Cell
+                key={index}
+                fill={COLORS[index % COLORS.length]}
+              />
+            ))}
+          </Pie>
 
-            <p className="text-gray-500 mt-1">
-              Monthly sales performance
-            </p>
-          </div>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
 
-          <div className="h-[320px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={salesData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                <XAxis dataKey="month" />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="sales"
-                  stroke="#f97316"
-                  strokeWidth={3}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+  {/* BAR */}
+  <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+    <h2 className="text-2xl font-semibold mb-6">
+      Category Breakdown
+    </h2>
 
-        </div>
+    <div className="h-[380px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={categoryData}
+          margin={{
+            top: 20,
+            right: 20,
+            left: 0,
+            bottom: 20,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
 
-        {/* AI CARD */}
-        <div className="bg-black text-white rounded-3xl p-8 flex flex-col justify-between shadow-sm">
+          <XAxis dataKey="category" />
 
-          <div>
+          <YAxis allowDecimals={false} />
 
-            <span className="text-orange-400 text-sm">
-              AI Insight
-            </span>
+          <Tooltip />
 
-            <h2 className="text-3xl font-semibold mt-5 leading-snug">
-              Snack category demand expected to increase this weekend.
-            </h2>
+          <Bar
+            dataKey="count"
+            fill="#f97316"
+            radius={[10, 10, 0, 0]}
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
 
-            <p className="text-gray-400 mt-5 leading-relaxed">
-              KiranaIQ predicts a 22% spike in snack sales based on
-              historical weekend demand patterns.
-            </p>
+</div>
 
-          </div>
+      {/* INSIGHT */}
+      <div className="mt-10">
+        <div className="bg-black rounded-3xl p-10 text-white max-w-2xl">
+          <p className="text-orange-400 text-sm uppercase tracking-wide">
+            AI Insight Preview
+          </p>
 
-          <button className="mt-8 bg-white text-black rounded-2xl py-4 hover:bg-gray-100 transition font-medium">
-            View Details
-          </button>
-
-        </div>
-
-      </div>
-
-      {/* DEMAND CHART */}
-      <div className="bg-white border border-gray-200 rounded-3xl p-8 mt-8 shadow-sm">
-
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold">
-            Weekly Demand Forecast
+          <h2 className="text-4xl font-semibold mt-4 leading-tight">
+            {stockHealth.critical > 0
+              ? `${stockHealth.critical} critical stock risks detected.`
+              : "Inventory health looks stable."}
           </h2>
 
-          <p className="text-gray-500 mt-1">
-            AI-powered demand trend analysis
+          <p className="text-gray-400 mt-5 text-lg leading-relaxed">
+            AI forecasting and smart reorder predictions coming next.
           </p>
         </div>
-
-        <div className="h-[320px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={demandData}>
-
-              <defs>
-                <linearGradient id="colorDemand" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-
-              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-              <XAxis dataKey="day" />
-              <Tooltip />
-
-              <Area
-                type="monotone"
-                dataKey="demand"
-                stroke="#f97316"
-                fillOpacity={1}
-                fill="url(#colorDemand)"
-              />
-
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
       </div>
-
     </RetailerLayout>
   );
 }
