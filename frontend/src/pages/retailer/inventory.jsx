@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
   Search,
-  Plus,
-  Filter,
-  X,
+    Plus,
+    X,
+    Download,
 } from "lucide-react";
 import RetailerLayout from "../../layouts/RetailerLayout";
 import { Link } from "react-router-dom";
@@ -16,6 +16,12 @@ function Inventory() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] =
+    useState("all");
+  const [statusFilter, setStatusFilter] =
+    useState("all");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -62,6 +68,92 @@ function Inventory() {
       style: "bg-green-100 text-green-500",
     };
   };
+  const handleExportCSV = () => {
+  const headers = [
+    "Product Name",
+    "SKU",
+    "Category",
+    "Current Stock",
+    "Reorder Level",
+    "Unit Price",
+    "Supplier",
+    "Status",
+  ];
+
+  const rows = filteredProducts.map((product) => {
+    const status = getStatus(
+      product.current_stock,
+      product.reorder_level
+    ).label;
+
+    return [
+      product.name,
+      product.sku,
+      product.category,
+      product.current_stock,
+      product.reorder_level,
+      product.unit_price,
+      product.supplier || "",
+      status,
+    ];
+  });
+
+  const csvContent = [
+    headers,
+    ...rows,
+  ]
+    .map((row) => row.join(","))
+    .join("\n");
+
+  const blob = new Blob(
+    [csvContent],
+    { type: "text/csv;charset=utf-8;" }
+  );
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute(
+    "download",
+    "inventory_export.csv"
+  );
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+  const filteredProducts = products.filter(
+    (product) => {
+      const matchesSearch =
+        product.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        product.sku
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+
+      const matchesCategory =
+        categoryFilter === "all" ||
+        product.category === categoryFilter;
+
+      const productStatus = getStatus(
+        product.current_stock,
+        product.reorder_level
+      ).label.toLowerCase();
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        productStatus === statusFilter;
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesStatus
+      );
+    }
+  );
 
   const handleChange = (e) => {
     setFormData({
@@ -112,7 +204,7 @@ function Inventory() {
 
   return (
     <RetailerLayout>
-      {/* TOPBAR */}
+      {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-semibold tracking-tight">
@@ -124,6 +216,15 @@ function Inventory() {
           </p>
         </div>
 
+        <div className="flex gap-3">
+            <button
+              onClick={handleExportCSV}
+              className="bg-white border border-gray-200 px-6 py-4 rounded-2xl flex items-center gap-2 hover:bg-gray-50 transition shadow-sm"
+            >
+              <Download className="w-5 h-5" />
+              Export CSV
+            </button>
+
         <button
           onClick={() => setShowModal(true)}
           className="bg-orange-500 text-white px-6 py-4 rounded-2xl flex items-center gap-2 hover:bg-orange-600 transition shadow-sm"
@@ -131,29 +232,87 @@ function Inventory() {
           <Plus className="w-5 h-5" />
           Add Product
         </button>
+        </div>
       </div>
 
-      {/* SEARCH + FILTER */}
-      <div className="flex items-center justify-between mt-10">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-2xl px-5 py-4 w-[360px] shadow-sm">
-            <Search className="w-5 h-5 text-gray-400" />
+      {/* SEARCH + FILTERS */}
+      <div className="flex items-center gap-4 mt-10 flex-wrap">
+        <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-2xl px-5 py-4 w-[350px] shadow-sm">
+          <Search className="w-5 h-5 text-gray-400" />
 
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="outline-none w-full bg-transparent text-gray-700"
-            />
-          </div>
-
-          <button className="bg-white border border-gray-200 rounded-2xl px-6 py-4 flex items-center gap-2 hover:bg-gray-50 transition shadow-sm">
-            <Filter className="w-5 h-5" />
-            Filters
-          </button>
+          <input
+            type="text"
+            placeholder="Search name or SKU..."
+            value={searchTerm}
+            onChange={(e) =>
+              setSearchTerm(e.target.value)
+            }
+            className="outline-none w-full bg-transparent"
+          />
         </div>
 
-        <div className="text-gray-500 text-lg">
-          {products.length} Products
+        <select
+          value={categoryFilter}
+          onChange={(e) =>
+            setCategoryFilter(e.target.value)
+          }
+          className="bg-white border border-gray-200 rounded-2xl px-5 py-4 shadow-sm"
+        >
+          <option value="all">
+            All Categories
+          </option>
+
+          <option value="groceries">
+            Groceries
+          </option>
+
+          <option value="dairy">
+            Dairy
+          </option>
+
+          <option value="snacks">
+            Snacks
+          </option>
+
+          <option value="beverages">
+            Beverages
+          </option>
+
+          <option value="personal_care">
+            Personal Care
+          </option>
+
+          <option value="household">
+            Household
+          </option>
+        </select>
+
+        <select
+          value={statusFilter}
+          onChange={(e) =>
+            setStatusFilter(e.target.value)
+          }
+          className="bg-white border border-gray-200 rounded-2xl px-5 py-4 shadow-sm"
+        >
+          <option value="all">
+            All Status
+          </option>
+
+          <option value="stable">
+            Stable
+          </option>
+
+          <option value="low">
+            Low
+          </option>
+
+          <option value="critical">
+            Critical
+          </option>
+        </select>
+
+        <div className="ml-auto text-gray-500 text-lg">
+          {filteredProducts.length} Products
         </div>
       </div>
 
@@ -162,27 +321,39 @@ function Inventory() {
         <table className="w-full">
           <thead className="bg-gray-50 text-left text-gray-400">
             <tr>
-              <th className="px-8 py-6 font-medium">Product</th>
-              <th className="px-8 py-6 font-medium">Category</th>
-              <th className="px-8 py-6 font-medium">Stock</th>
-              <th className="px-8 py-6 font-medium">Price</th>
-              <th className="px-8 py-6 font-medium">Status</th>
-              <th className="px-8 py-6 font-medium">Supplier</th>
+              <th className="px-8 py-6 font-medium">
+                Product
+              </th>
+              <th className="px-8 py-6 font-medium">
+                Category
+              </th>
+              <th className="px-8 py-6 font-medium">
+                Stock
+              </th>
+              <th className="px-8 py-6 font-medium">
+                Price
+              </th>
+              <th className="px-8 py-6 font-medium">
+                Status
+              </th>
+              <th className="px-8 py-6 font-medium">
+                Supplier
+              </th>
             </tr>
           </thead>
 
-          <tbody className="text-base">
-            {products.length === 0 ? (
+          <tbody>
+            {filteredProducts.length === 0 ? (
               <tr>
                 <td
                   colSpan="6"
                   className="text-center py-12 text-gray-400"
                 >
-                  No products found.
+                  No matching products found.
                 </td>
               </tr>
             ) : (
-              products.map((product) => {
+              filteredProducts.map((product) => {
                 const status = getStatus(
                   product.current_stock,
                   product.reorder_level
@@ -208,7 +379,7 @@ function Inventory() {
                       </div>
                     </td>
 
-                    <td className="px-8 py-6 text-gray-600 capitalize">
+                    <td className="px-8 py-6 capitalize text-gray-600">
                       {product.category.replace("_", " ")}
                     </td>
 
@@ -282,12 +453,24 @@ function Inventory() {
                 onChange={handleChange}
                 className="border border-gray-200 rounded-2xl px-4 py-4 outline-none"
               >
-                <option value="groceries">Groceries</option>
-                <option value="dairy">Dairy</option>
-                <option value="snacks">Snacks</option>
-                <option value="beverages">Beverages</option>
-                <option value="personal_care">Personal Care</option>
-                <option value="household">Household</option>
+                <option value="groceries">
+                  Groceries
+                </option>
+                <option value="dairy">
+                  Dairy
+                </option>
+                <option value="snacks">
+                  Snacks
+                </option>
+                <option value="beverages">
+                  Beverages
+                </option>
+                <option value="personal_care">
+                  Personal Care
+                </option>
+                <option value="household">
+                  Household
+                </option>
               </select>
 
               <input

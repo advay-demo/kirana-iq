@@ -7,6 +7,7 @@ import {
   Bell,
   Settings,
   Brain,
+  ShoppingCart,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -52,12 +53,18 @@ function RetailerLayout({ children }) {
       name: "Notifications",
       path: "/retailer/notifications",
       icon: Bell,
+      count: 3,
     },
 
     {
       name: "Settings",
       path: "/retailer/settings",
       icon: Settings,
+    },
+    {
+      name: "Orders",
+      path: "/retailer/orders",
+      icon: ShoppingCart,
     },
   ];
 
@@ -96,15 +103,23 @@ function RetailerLayout({ children }) {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition ${
+                  className={`w-full px-4 py-3 rounded-xl transition ${
                     active
                       ? "bg-orange-50 text-orange-500 font-medium"
                       : "hover:bg-gray-100 text-gray-600"
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <div className="flex items-center gap-3 w-full">
+                    <Icon className="w-5 h-5" />
 
-                  {item.name}
+                    <span>{item.name}</span>
+
+                    {item.count > 0 && (
+                      <span className="ml-auto bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-full min-w-[22px] text-center">
+                        {item.count}
+                      </span>
+                    )}
+                  </div>
                 </Link>
               );
             })}
