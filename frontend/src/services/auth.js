@@ -218,3 +218,74 @@ export async function getAIInsights() {
 
   return data;
 }
+export async function getOrders() {
+  const token = localStorage.getItem("accessToken");
+
+  const response = await fetch(
+    "http://127.0.0.1:8000/api/orders/",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch orders");
+  }
+
+  return data;
+}
+
+
+export async function createOrder(orderData) {
+  const token = localStorage.getItem("accessToken");
+
+  const response = await fetch(
+    "http://127.0.0.1:8000/api/orders/",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(orderData),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to create order");
+  }
+
+  return data;
+}
+export async function updateOrder(orderId, updates) {
+  const token = localStorage.getItem("accessToken");
+
+  const response = await fetch(
+    "http://127.0.0.1:8000/api/orders/",
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        order_id: orderId,
+        ...updates,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to update order");
+  }
+
+  return data;
+}

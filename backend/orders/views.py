@@ -41,3 +41,32 @@ class OrderListCreateView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    def patch(self, request):
+        order_id = request.data.get("order_id")
+
+        try:
+            order = Order.objects.get(
+                id=order_id,
+                retailer=request.user
+            )
+        except Order.DoesNotExist:
+            return Response(
+                {"error": "Order not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = OrderSerializer(
+            order,
+            data=request.data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )

@@ -15,7 +15,7 @@ import Settings from "./pages/retailer/Settings";
 import ProductDetails from "./pages/retailer/ProductDetails";
 import AIInsights from "./pages/retailer/AIInsights";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import Orders from "./pages/retailer/Orders";
 
 
 
@@ -63,9 +63,9 @@ function App() {
       <Route path="/retailer/ai-insights" element={<ProtectedRoute>
         <AIInsights />
       </ProtectedRoute>} />
-
-      
-
+      <Route path="/retailer/orders" element={ <ProtectedRoute> 
+        <Orders />
+    </ProtectedRoute> }/>   
     </Routes>
   );
 }
