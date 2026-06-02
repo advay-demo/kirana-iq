@@ -5,7 +5,9 @@ from .views import (
     ProductDetailView,
     NotificationsView,
     AnalyticsView,
-    AIInsightsView
+    AIInsightsView,
+    ProductSearchView,
+    ProductSuggestView,
 )
 
 urlpatterns = [
@@ -15,4 +17,6 @@ urlpatterns = [
     path("notifications/", NotificationsView.as_view()),
     path("analytics/", AnalyticsView.as_view()),
     path("ai-insights/", AIInsightsView.as_view()),
+    path("search/", ProductSearchView.as_view()),
+    path("suggest/", ProductSuggestView.as_view()),
 ]

@@ -1,291 +1,178 @@
-const API_BASE = "http://127.0.0.1:8000/api/accounts";
+const BASE = "http://127.0.0.1:8001/api";
 
+// ── TOKEN REFRESH ─────────────────────────────────────────────────
+async function refreshAccessToken() {
+  const refresh = localStorage.getItem("refreshToken");
+  if (!refresh) throw new Error("No refresh token");
+
+  const res = await fetch(`${BASE}/accounts/token/refresh/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh }),
+  });
+
+  if (!res.ok) {
+    // Just remove the expired access token — ProtectedRoute will redirect
+    localStorage.removeItem("accessToken");
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  const data = await res.json();
+  localStorage.setItem("accessToken", data.access);
+  return data.access;
+}
+
+// ── SMART FETCH (auto-retries once after refreshing token) ─────────
+export async function apiFetch(url, options = {}) {
+  const token = localStorage.getItem("accessToken");
+
+  const doRequest = (tok) =>
+    fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+        ...(tok ? { Authorization: `Bearer ${tok}` } : {}),
+      },
+    });
+
+  let res = await doRequest(token);
+
+  // Auto-refresh on 401 then retry once
+  if (res.status === 401) {
+    try {
+      const newToken = await refreshAccessToken();
+      res = await doRequest(newToken);
+    } catch {
+      throw new Error("Unauthorized");
+    }
+  }
+
+  return res;
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────
+export async function loginUser(userData) {
+  const res = await fetch(`${BASE}/accounts/login/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Login failed");
+  return data;
+}
 
 export async function retailerSignup(userData) {
-  const response = await fetch(`${API_BASE}/signup/`, {
+  const res = await fetch(`${BASE}/accounts/signup/`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
   });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "Signup failed");
-  }
-
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Signup failed");
   return data;
 }
 
-
-export async function loginUser(userData) {
-  const response = await fetch(`${API_BASE}/login/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "Login failed");
-  }
-
-  return data;
-}
+// ── PRODUCTS ──────────────────────────────────────────────────────
 export async function getProducts() {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch("http://127.0.0.1:8000/api/inventory/products/", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch products");
-  }
-
+  const res = await apiFetch(`${BASE}/inventory/products/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch products");
   return data;
 }
-export async function getDashboardStats() {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    "http://127.0.0.1:8000/api/inventory/dashboard/",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch dashboard stats");
-  }
-
-  return data;
-}
-
 
 export async function createProduct(productData) {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch("http://127.0.0.1:8000/api/inventory/products/", {
+  const res = await apiFetch(`${BASE}/inventory/products/`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(productData),
   });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to create product");
-  }
-
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to create product");
   return data;
 }
+
 export async function getProductDetail(productId) {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    `http://127.0.0.1:8000/api/inventory/products/${productId}/`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch product");
-  }
-
+  const res = await apiFetch(`${BASE}/inventory/products/${productId}/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch product");
   return data;
 }
+
 export async function updateProduct(productId, productData) {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    `http://127.0.0.1:8000/api/inventory/products/${productId}/`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(productData),
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to update product");
-  }
-
+  const res = await apiFetch(`${BASE}/inventory/products/${productId}/`, {
+    method: "PATCH",
+    body: JSON.stringify(productData),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to update product");
   return data;
 }
+
 export async function deleteProduct(productId) {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    `http://127.0.0.1:8000/api/inventory/products/${productId}/`,
-    {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to delete product");
-  }
-
+  const res = await apiFetch(`${BASE}/inventory/products/${productId}/`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete product");
   return true;
 }
+
+// ── DASHBOARD ─────────────────────────────────────────────────────
+export async function getDashboardStats() {
+  const res = await apiFetch(`${BASE}/inventory/dashboard/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch dashboard stats");
+  return data;
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────
 export async function getNotifications() {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    "http://127.0.0.1:8000/api/inventory/notifications/",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch notifications");
-  }
-
+  const res = await apiFetch(`${BASE}/inventory/notifications/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch notifications");
   return data;
 }
+
+// ── ANALYTICS ─────────────────────────────────────────────────────
 export async function getAnalytics() {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    "http://127.0.0.1:8000/api/inventory/analytics/",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch analytics");
-  }
-
+  const res = await apiFetch(`${BASE}/inventory/analytics/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch analytics");
   return data;
 }
+
+// ── AI INSIGHTS ───────────────────────────────────────────────────
 export async function getAIInsights() {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    "http://127.0.0.1:8000/api/inventory/ai-insights/",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch AI insights");
-  }
-
+  const res = await apiFetch(`${BASE}/inventory/ai-insights/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch AI insights");
   return data;
 }
+
+// ── ORDERS ────────────────────────────────────────────────────────
 export async function getOrders() {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    "http://127.0.0.1:8000/api/orders/",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch orders");
-  }
-
+  const res = await apiFetch(`${BASE}/orders/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch orders");
   return data;
 }
-
 
 export async function createOrder(orderData) {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    "http://127.0.0.1:8000/api/orders/",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(orderData),
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to create order");
-  }
-
+  const res = await apiFetch(`${BASE}/orders/`, {
+    method: "POST",
+    body: JSON.stringify(orderData),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to create order");
   return data;
 }
+
 export async function updateOrder(orderId, updates) {
-  const token = localStorage.getItem("accessToken");
-
-  const response = await fetch(
-    "http://127.0.0.1:8000/api/orders/",
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        order_id: orderId,
-        ...updates,
-      }),
-    }
-  );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error("Failed to update order");
-  }
-
+  const res = await apiFetch(`${BASE}/orders/`, {
+    method: "PATCH",
+    body: JSON.stringify({ order_id: orderId, ...updates }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to update order");
   return data;
 }

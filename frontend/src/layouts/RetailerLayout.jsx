@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -10,10 +9,15 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { getNotifications } from "../services/auth";
+import { useDarkMode } from "../context/useDarkMode";
 
 function RetailerLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { dark } = useDarkMode();
+  const [notificationCount, setNotificationCount] = useState(0);
+  const userName = localStorage.getItem("userName") || "Retailer";
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -23,6 +27,18 @@ function RetailerLayout({ children }) {
 
     navigate("/login");
   };
+  useEffect(() => {
+  fetchNotificationCount();
+}, []);
+
+const fetchNotificationCount = async () => {
+  try {
+    const data = await getNotifications();
+    setNotificationCount(data.length);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const navItems = [
     {
@@ -53,7 +69,7 @@ function RetailerLayout({ children }) {
       name: "Notifications",
       path: "/retailer/notifications",
       icon: Bell,
-      count: 3,
+      count: notificationCount,
     },
 
     {
@@ -69,10 +85,10 @@ function RetailerLayout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-gray-900 flex">
 
       {/* SIDEBAR */}
-      <aside className="w-72 bg-white border-r border-gray-200 px-6 py-8 flex flex-col justify-between">
+      <aside className="w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 px-6 py-8 flex flex-col justify-between">
 
         <div>
 
@@ -103,23 +119,19 @@ function RetailerLayout({ children }) {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`w-full px-4 py-3 rounded-xl transition ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${
                     active
-                      ? "bg-orange-50 text-orange-500 font-medium"
-                      : "hover:bg-gray-100 text-gray-600"
+                      ? "bg-orange-50 dark:bg-orange-900/30 text-orange-500 font-medium"
+                      : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
                   }`}
                 >
-                  <div className="flex items-center gap-3 w-full">
-                    <Icon className="w-5 h-5" />
-
-                    <span>{item.name}</span>
-
-                    {item.count > 0 && (
-                      <span className="ml-auto bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-full min-w-[22px] text-center">
-                        {item.count}
-                      </span>
-                    )}
-                  </div>
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  <span>{item.name}</span>
+                  {item.count > 0 && (
+                    <span className="ml-auto bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-full min-w-[22px] text-center">
+                      {item.count}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -129,20 +141,13 @@ function RetailerLayout({ children }) {
         </div>
 
         {/* USER */}
-        <div className="border border-gray-200 rounded-2xl p-4 flex items-center gap-3">
-
-          <div className="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 font-semibold">
-            A
+        <div className="border border-gray-200 dark:border-gray-600 rounded-2xl p-4 flex items-center gap-3">
+          <div className="w-11 h-11 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-500 font-semibold">
+            {userName.charAt(0).toUpperCase()}
           </div>
-
           <div>
-            <h3 className="font-medium">
-              Advay
-            </h3>
-
-            <p className="text-sm text-gray-500">
-              Retailer Account
-            </p>
+            <h3 className="font-medium dark:text-white">{userName}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Retailer Account</p>
 
             <button
               onClick={handleLogout}
@@ -157,7 +162,7 @@ function RetailerLayout({ children }) {
       </aside>
 
       {/* MAIN */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 dark:bg-gray-900">
         {children}
       </main>
 
