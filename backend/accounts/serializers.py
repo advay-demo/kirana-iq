@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, RetailerProfile
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -24,3 +24,16 @@ class SignupSerializer(serializers.ModelSerializer):
             first_name=validated_data.get("first_name", ""),
         )
         return user
+
+
+class RetailerProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RetailerProfile
+        fields = [
+            "shop_name",
+            "shop_category",
+            "city",
+            "latitude",
+            "longitude",
+            "whatsapp",
+        ]

@@ -7,11 +7,51 @@ import {
   Sparkles,
 } from "lucide-react";
 import RetailerLayout from "../../layouts/RetailerLayout";
-import { getAIInsights } from "../../services/auth";
+import { getAIInsights,
+  createOrder,
+ } from "../../services/auth";
 
 function AIInsights() {
   const [insights, setInsights] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showOrderModal, setShowOrderModal] =
+  useState(false);
+
+const [selectedProduct, setSelectedProduct] =
+  useState(null);
+
+const [orderData, setOrderData] = useState({
+  quantity: "",
+  supplier_name: "",
+});
+const handleQuickReorder = (product) => {
+  setSelectedProduct(product);
+
+  setOrderData({
+    quantity: product.reorder_level * 2,
+    supplier_name: product.supplier || "",
+  });
+
+  setShowOrderModal(true);
+};
+const handleCreateQuickOrder = async (e) => {
+  e.preventDefault();
+
+  try {
+    await createOrder({
+      product: selectedProduct.id,
+      quantity: Number(orderData.quantity),
+      supplier_name: orderData.supplier_name,
+      status: "pending",
+    });
+
+    setShowOrderModal(false);
+    alert("Supplier order created");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to create order");
+  }
+};
 
   useEffect(() => {
     fetchInsights();
@@ -160,11 +200,83 @@ function AIInsights() {
                 <p className="text-gray-600 mt-3 text-lg leading-relaxed">
                   {insight.message}
                 </p>
+                {(insight.type === "critical" ||
+                  insight.type === "warning") && (
+                  <button
+                    onClick={() => handleQuickReorder(insight.product)}
+                    className="mt-5 bg-orange-500 text-white px-5 py-3 rounded-2xl font-medium hover:bg-orange-600 transition"
+                  >
+                    Quick Reorder
+                  </button>
+                )}
               </div>
             </div>
           );
         })}
       </div>
+      {showOrderModal && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white w-[600px] rounded-3xl p-8 shadow-2xl">
+      <h2 className="text-3xl font-semibold mb-8">
+        Quick Supplier Order
+      </h2>
+
+      <form
+        onSubmit={handleCreateQuickOrder}
+        className="grid gap-5"
+      >
+        <input
+          type="text"
+          value={selectedProduct?.name || ""}
+          disabled
+          className="border border-gray-200 rounded-2xl px-4 py-4 bg-gray-50"
+        />
+
+        <input
+          type="number"
+          value={orderData.quantity}
+          onChange={(e) =>
+            setOrderData({
+              ...orderData,
+              quantity: e.target.value,
+            })
+          }
+          className="border border-gray-200 rounded-2xl px-4 py-4"
+        />
+
+        <input
+          type="text"
+          value={orderData.supplier_name}
+          onChange={(e) =>
+            setOrderData({
+              ...orderData,
+              supplier_name: e.target.value,
+            })
+          }
+          placeholder="Supplier name"
+          className="border border-gray-200 rounded-2xl px-4 py-4"
+        />
+
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={() => setShowOrderModal(false)}
+            className="flex-1 border border-gray-200 py-4 rounded-2xl"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            className="flex-1 bg-orange-500 text-white py-4 rounded-2xl hover:bg-orange-600"
+          >
+            Create Order
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </RetailerLayout>
   );
 }

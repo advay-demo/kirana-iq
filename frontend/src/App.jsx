@@ -1,9 +1,9 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import HowItWorks from "./pages/HowItWorks";
@@ -16,6 +16,8 @@ import ProductDetails from "./pages/retailer/ProductDetails";
 import AIInsights from "./pages/retailer/AIInsights";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Orders from "./pages/retailer/Orders";
+import ProductSearchResults from "./pages/ProductSearchResults";
+import Onboarding from "./pages/retailer/Onboarding";
 
 
 
@@ -41,7 +43,11 @@ function App() {
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route path="/signup" element={<Navigate to="/login?tab=signup" replace />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/retailer/onboarding" element={<ProtectedRoute>
+        <Onboarding />
+      </ProtectedRoute>} />
       <Route path="/retailer/dashboard" element={<ProtectedRoute>
       <Dashboard />
     </ProtectedRoute>} />
@@ -65,8 +71,14 @@ function App() {
       </ProtectedRoute>} />
       <Route path="/retailer/orders" element={ <ProtectedRoute> 
         <Orders />
-    </ProtectedRoute> }/>   
+    </ProtectedRoute> }/> 
+    <Route
+  path="/products/search"
+  element={<ProductSearchResults />}
+/>
+      
     </Routes>
+    
   );
 }
 

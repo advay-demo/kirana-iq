@@ -1,11 +1,152 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
+from django.db.models import Q
+import random
+import requests
+from django.conf import settings
 
 from .models import Product
 from django.db import models
 from .serializers import ProductSerializer
+
+
+# ── PUBLIC SEARCH ──────────────────────────────────────────
+ALTERNATIVES_MAP = {
+    "milk":       ["toned milk", "soy milk", "almond milk", "buffalo milk"],
+    "bread":      ["brown bread", "multigrain bread", "pav", "roti"],
+    "rice":       ["basmati rice", "sona masoori", "brown rice", "poha"],
+    "sugar":      ["jaggery", "brown sugar", "honey", "stevia"],
+    "atta":       ["maida", "multigrain atta", "besan", "sooji"],
+    "dal":        ["moong dal", "masoor dal", "chana dal", "toor dal"],
+    "oil":        ["sunflower oil", "mustard oil", "groundnut oil", "ghee"],
+    "tea":        ["green tea", "herbal tea", "coffee", "masala tea"],
+    "soap":       ["hand wash", "body wash", "neem soap", "dettol soap"],
+    "biscuits":   ["cookies", "crackers", "rusk", "wafers"],
+    "shampoo":    ["conditioner", "hair oil", "dry shampoo", "reetha"],
+    "detergent":  ["washing powder", "liquid detergent", "surf excel", "vim"],
+    "eggs":       ["tofu", "paneer", "soy chunks", "mushrooms"],
+    "butter":     ["margarine", "ghee", "cream cheese", "coconut oil"],
+    "namkeen":    ["chips", "popcorn", "roasted peanuts", "murukku"],
+}
+
+STORE_NAMES = [
+    "Sharma General Store", "Patel Kirana", "Lakshmi Provisions",
+    "Singh Mart", "Om Namah Stores", "New India Grocery",
+    "Gupta & Sons", "Sri Venkateshwara Stores", "Metro Kirana",
+    "Daily Needs", "Fresh Corner", "Jai Hind Provisions",
+]
+
+
+class ProductSuggestView(APIView):
+    """Autocomplete: returns matching product names (no auth needed)"""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        q = request.query_params.get("q", "").strip()
+        if not q or len(q) < 2:
+            return Response([])
+
+        # Match from DB products
+        db_names = list(
+            Product.objects.filter(name__icontains=q)
+            .values_list("name", flat=True)
+            .distinct()[:6]
+        )
+
+        # Also match from our static alternatives map keys
+        static = [k for k in ALTERNATIVES_MAP if q.lower() in k]
+
+        combined = list(dict.fromkeys(db_names + static))[:8]
+        return Response(combined)
+
+
+class ProductSearchView(APIView):
+    """Full search results page data (no auth needed)"""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        q = request.query_params.get("q", "").strip()
+        lat = request.query_params.get("lat")
+        lng = request.query_params.get("lng")
+
+        if not q:
+            return Response({"stores": [], "alternatives": []})
+
+        store_names_to_use = STORE_NAMES.copy()
+
+        # Try to fetch real stores from Google Places API if lat/lng are provided
+        if lat and lng and getattr(settings, "GOOGLE_MAPS_API_KEY", None):
+            try:
+                url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=2000&type=supermarket|grocery_or_supermarket|store&key={settings.GOOGLE_MAPS_API_KEY}"
+                resp = requests.get(url, timeout=5)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    results = data.get("results", [])
+                    if results:
+                        real_stores = [r.get("name") for r in results if r.get("name")]
+                        # Randomly pick up to 10 real stores to mix in
+                        store_names_to_use = random.sample(real_stores, min(len(real_stores), 10))
+            except Exception as e:
+                print("Google Places API error:", e)
+                pass
+
+        # Find matching products from DB (just to get a baseline price/details)
+        matching = Product.objects.filter(name__icontains=q).first()
+        base_price = matching.unit_price if matching else round(random.uniform(20, 200), 2)
+
+        stores = []
+        # Generate mock inventory for the stores (real or fake)
+        num_stores = random.randint(3, len(store_names_to_use))
+        selected_stores = random.sample(store_names_to_use, num_stores)
+
+        for store_name in selected_stores:
+            stock = random.randint(0, 50)
+            if stock == 0:
+                stock_status = "Out of Stock"
+            elif stock <= 5:
+                stock_status = "Low Stock"
+            else:
+                stock_status = "In Stock"
+
+            # slight price variation per store
+            store_price = float(base_price) * random.uniform(0.9, 1.1)
+
+            stores.append({
+                "store_name": store_name,
+                "distance": f"{round(random.uniform(0.3, 4.5), 1)} km",
+                "status": stock_status,
+                "price": round(store_price, 2) if stock > 0 else None,
+                "stock": stock,
+            })
+
+        # Sort by status priority: In Stock > Low Stock > Out of Stock
+        priority = {"In Stock": 0, "Low Stock": 1, "Out of Stock": 2}
+        stores.sort(key=lambda x: priority.get(x["status"], 3))
+
+        # Alternatives — from map or generic
+        key = q.lower().strip()
+        alt_names = ALTERNATIVES_MAP.get(key, [])
+        if not alt_names:
+            # fuzzy: check if any key is a substring
+            for k, v in ALTERNATIVES_MAP.items():
+                if k in key or key in k:
+                    alt_names = v
+                    break
+
+        # Build alternative store cards (mock nearest availability)
+        alternatives = []
+        for alt in alt_names:
+            alternatives.append({
+                "name": alt.title(),
+                "nearest_store": random.choice(store_names_to_use),
+                "distance": f"{round(random.uniform(0.2, 3.0), 1)} km",
+                "status": random.choice(["In Stock", "In Stock", "Low Stock"]),
+                "price": round(random.uniform(20, 150), 0),
+            })
+
+        return Response({"stores": stores, "alternatives": alternatives})
 
 
 class ProductListCreateView(APIView):

@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
-from .serializers import SignupSerializer
-from .models import User
+from .serializers import SignupSerializer, RetailerProfileSerializer
+from .models import User, RetailerProfile
 
 
 def get_tokens_for_user(user):
@@ -35,6 +35,7 @@ def signup(request):
                     "username": user.username,
                     "role": user.role,
                     "phone": user.phone,
+                    "has_onboarded": False,
                 },
                 "tokens": tokens,
             },
@@ -53,6 +54,7 @@ def login(request):
 
     if user:
         tokens = get_tokens_for_user(user)
+        has_onboarded = hasattr(user, 'retailer_profile')
 
         return Response(
             {
@@ -62,6 +64,7 @@ def login(request):
                     "name": user.first_name,
                     "username": user.username,
                     "role": user.role,
+                    "has_onboarded": has_onboarded,
                 },
                 "tokens": tokens,
             }
@@ -70,4 +73,19 @@ def login(request):
     return Response(
         {"error": "Invalid credentials"},
         status=status.HTTP_401_UNAUTHORIZED,
-    )   
+    )
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def onboard_retailer(request):
+    if hasattr(request.user, 'retailer_profile'):
+        return Response({"error": "Already onboarded"}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = RetailerProfileSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
