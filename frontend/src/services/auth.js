@@ -138,3 +138,59 @@ export async function updateOrder(orderId, updates) {
   if (!res.ok) throw new Error("Failed to update order");
   return data;
 }
+
+// ── ACCOUNTS ──────────────────────────────────────────────────────
+export async function onboardRetailer(payload) {
+  const res = await apiFetch(`${BASE}/accounts/onboard/`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to onboard");
+  return data;
+}
+
+export async function getProfile() {
+  const res = await apiFetch(`${BASE}/accounts/profile/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to load profile");
+  return data;
+}
+
+export async function updateProfile(payload) {
+  const res = await apiFetch(`${BASE}/accounts/profile/`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to update profile");
+  return data;
+}
+
+// ── SUPPLIER ORDERS ───────────────────────────────────────────────
+export async function createSupplierOrder(payload) {
+  const res = await apiFetch(`${BASE}/inventory/supplier-orders/create/`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to create supplier order");
+  return data;
+}
+
+export async function getSupplierOrders() {
+  const res = await apiFetch(`${BASE}/inventory/supplier-orders/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch supplier orders");
+  return data;
+}
+
+export async function updateSupplierOrderStatus(orderId, status) {
+  const res = await apiFetch(`${BASE}/inventory/supplier-orders/${orderId}/status/`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to update supplier order status");
+  return data;
+}

@@ -3,9 +3,11 @@ import {
   TrendingUp,
   AlertTriangle,
   ShieldCheck,
+  Brain,
 } from "lucide-react";
 import RetailerLayout from "../../layouts/RetailerLayout";
-import { getAnalytics } from "../../services/auth";
+import { getAnalytics, getAIInsights } from "../../services/auth";
+import ReactMarkdown from "react-markdown";
 
 import {
   PieChart,
@@ -25,8 +27,13 @@ function Analytics() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // AI Insight State
+  const [aiInsight, setAiInsight] = useState("");
+  const [aiLoading, setAiLoading] = useState(true);
+
   useEffect(() => {
     fetchAnalytics();
+    fetchInsights();
   }, []);
 
   const fetchAnalytics = async () => {
@@ -37,6 +44,18 @@ function Analytics() {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchInsights = async () => {
+    try {
+      const data = await getAIInsights();
+      setAiInsight(data.insights || "No insights available.");
+    } catch (error) {
+      console.error(error);
+      setAiInsight("Failed to generate AI insights. Please ensure your API key is valid and you have sufficient inventory data.");
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -170,96 +189,99 @@ function Analytics() {
       </div>
 
       {/* CHARTS */}
-      {/* CHARTS */}
-<div className="grid grid-cols-2 gap-8 mt-10">
+      <div className="grid grid-cols-2 gap-8 mt-10">
 
-  {/* PIE */}
-  <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
-    <h2 className="text-2xl font-semibold mb-6">
-      Stock Health
-    </h2>
-
-    <div className="h-[380px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={stockHealthData}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="45%"
-            outerRadius={120}
-            innerRadius={55}
-            paddingAngle={5}
-          >
-            {stockHealthData.map((entry, index) => (
-              <Cell
-                key={index}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-
-  {/* BAR */}
-  <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
-    <h2 className="text-2xl font-semibold mb-6">
-      Category Breakdown
-    </h2>
-
-    <div className="h-[380px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={categoryData}
-          margin={{
-            top: 20,
-            right: 20,
-            left: 0,
-            bottom: 20,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-
-          <XAxis dataKey="category" />
-
-          <YAxis allowDecimals={false} />
-
-          <Tooltip />
-
-          <Bar
-            dataKey="count"
-            fill="#f97316"
-            radius={[10, 10, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
-
-</div>
-
-      {/* INSIGHT */}
-      <div className="mt-10">
-        <div className="bg-black rounded-3xl p-10 text-white max-w-2xl">
-          <p className="text-orange-400 text-sm uppercase tracking-wide">
-            AI Insight Preview
-          </p>
-
-          <h2 className="text-4xl font-semibold mt-4 leading-tight">
-            {stockHealth.critical > 0
-              ? `${stockHealth.critical} critical stock risks detected.`
-              : "Inventory health looks stable."}
+        {/* PIE */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+          <h2 className="text-2xl font-semibold mb-6">
+            Stock Health
           </h2>
 
-          <p className="text-gray-400 mt-5 text-lg leading-relaxed">
-            AI forecasting and smart reorder predictions coming next.
-          </p>
+          <div className="h-[380px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stockHealthData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="45%"
+                  outerRadius={120}
+                  innerRadius={55}
+                  paddingAngle={5}
+                >
+                  {stockHealthData.map((entry, index) => (
+                    <Cell
+                      key={index}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* BAR */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+          <h2 className="text-2xl font-semibold mb-6">
+            Category Breakdown
+          </h2>
+
+          <div className="h-[380px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={categoryData}
+                margin={{
+                  top: 20,
+                  right: 20,
+                  left: 0,
+                  bottom: 20,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+
+                <XAxis dataKey="category" />
+
+                <YAxis allowDecimals={false} />
+
+                <Tooltip />
+
+                <Bar
+                  dataKey="count"
+                  fill="#f97316"
+                  radius={[10, 10, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+      </div>
+
+      {/* INSIGHT */}
+      <div className="mt-10 mb-10">
+        <div className="bg-black rounded-3xl p-10 text-white w-full">
+          <div className="flex items-center gap-3 mb-6">
+            <Brain className="w-8 h-8 text-orange-400" />
+            <p className="text-orange-400 font-bold uppercase tracking-widest text-lg">
+              Gemini AI Analyst
+            </p>
+          </div>
+
+          {aiLoading ? (
+            <div className="flex items-center gap-4 animate-pulse py-8">
+              <div className="w-8 h-8 rounded-full border-4 border-orange-500 border-t-transparent animate-spin"></div>
+              <p className="text-gray-400 text-xl font-medium">Analyzing your real-time inventory...</p>
+            </div>
+          ) : (
+            <div className="prose prose-invert prose-orange max-w-none prose-p:leading-relaxed prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl">
+              <ReactMarkdown>{aiInsight}</ReactMarkdown>
+            </div>
+          )}
         </div>
       </div>
     </RetailerLayout>

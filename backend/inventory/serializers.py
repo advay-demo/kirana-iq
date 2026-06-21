@@ -24,3 +24,18 @@ class CustomerOrderSerializer(serializers.ModelSerializer):
         model = CustomerOrder
         fields = "__all__"
         read_only_fields = ["retailer", "status", "total_amount", "created_at"]
+
+from .models import SupplierOrder, SupplierOrderItem
+
+class SupplierOrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupplierOrderItem
+        fields = ["id", "product_name", "brand", "quantity", "unit_price"]
+
+class SupplierOrderSerializer(serializers.ModelSerializer):
+    items = SupplierOrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SupplierOrder
+        fields = "__all__"
+        read_only_fields = ["retailer", "total_amount", "created_at"]

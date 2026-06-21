@@ -8,10 +8,12 @@ import {
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
+import { useAuth } from "@clerk/react";
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { isSignedIn } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,7 +32,7 @@ function Navbar() {
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <div className="w-full flex items-center justify-between px-10 py-4">
 
         {/* LEFT */}
         <div className="flex items-center gap-10">
@@ -224,19 +226,30 @@ function Navbar() {
             <Bell className="w-5 h-5" />
           </button>
 
-          <Link
-            to="/login"
-            className="text-sm text-gray-600 hover:text-black transition"
-          >
-            Log in
-          </Link>
+          {!isSignedIn ? (
+            <>
+              <Link
+                to="/login"
+                className="text-sm text-gray-600 hover:text-black transition"
+              >
+                Log in
+              </Link>
 
-          <Link
-            to="/signup"
-            className="bg-orange-500 text-white px-5 py-2 rounded-xl text-sm hover:bg-orange-600 transition-all duration-300 shadow-sm"
-          >
-            Sign up
-          </Link>
+              <Link
+                to="/signup"
+                className="bg-orange-500 text-white px-5 py-2 rounded-xl text-sm hover:bg-orange-600 transition-all duration-300 shadow-sm"
+              >
+                Sign up
+              </Link>
+            </>
+          ) : (
+            <Link
+              to="/retailer/dashboard"
+              className="bg-orange-500 text-white px-5 py-2 rounded-xl text-sm hover:bg-orange-600 transition-all duration-300 shadow-sm font-medium"
+            >
+              Dashboard
+            </Link>
+          )}
 
         </div>
 

@@ -38,8 +38,8 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  const role = profile?.role;
-  const hasOnboarded = profile?.has_onboarded;
+  const role = profile?.user?.role;
+  const hasOnboarded = profile?.user?.has_onboarded;
 
   // If retailer and not onboarded, force to onboarding page (unless they are already there)
   if (role === "retailer" && !hasOnboarded && location.pathname !== "/retailer/onboarding") {

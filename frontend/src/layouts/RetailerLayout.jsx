@@ -12,20 +12,23 @@ import {
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getNotifications } from "../services/auth";
 import { useDarkMode } from "../context/useDarkMode";
+import { useAuth } from "@clerk/react";
 
 function RetailerLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { dark } = useDarkMode();
+  const { signOut } = useAuth();
   const [notificationCount, setNotificationCount] = useState(0);
   const userName = localStorage.getItem("userName") || "Retailer";
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userName");
 
+    await signOut();
     navigate("/login");
   };
   useEffect(() => {
