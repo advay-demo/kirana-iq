@@ -3,7 +3,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
+
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
 import HowItWorks from "./pages/HowItWorks";
@@ -18,17 +20,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Orders from "./pages/retailer/Orders";
 import ProductSearchResults from "./pages/ProductSearchResults";
 import Onboarding from "./pages/retailer/Onboarding";
-
-
-
-
-
+import Distributors from "./pages/retailer/Distributors";
 
 function App() {
   return (
     <Routes>
-
-      {/* MAIN SITE (with navbar/footer layout) */}
       <Route
         path="/"
         element={
@@ -42,9 +38,11 @@ function App() {
       <Route path="/features" element={<Features />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/pricing" element={<Pricing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Navigate to="/login?tab=signup" replace />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      
+      {/* Clerk Auth Routes */}
+      <Route path="/login/*" element={<Login />} />
+      <Route path="/signup/*" element={<Signup />} />
+
       <Route path="/retailer/onboarding" element={<ProtectedRoute>
         <Onboarding />
       </ProtectedRoute>} />
@@ -71,6 +69,9 @@ function App() {
       </ProtectedRoute>} />
       <Route path="/retailer/orders" element={ <ProtectedRoute> 
         <Orders />
+    </ProtectedRoute> }/> 
+      <Route path="/retailer/distributors" element={ <ProtectedRoute> 
+        <Distributors />
     </ProtectedRoute> }/> 
     <Route
   path="/products/search"

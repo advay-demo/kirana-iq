@@ -1,76 +1,38 @@
 const BASE = "http://127.0.0.1:8001/api";
 
-// ── TOKEN REFRESH ─────────────────────────────────────────────────
-async function refreshAccessToken() {
-  const refresh = localStorage.getItem("refreshToken");
-  if (!refresh) throw new Error("No refresh token");
-
-  const res = await fetch(`${BASE}/accounts/token/refresh/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh }),
-  });
-
-  if (!res.ok) {
-    // Just remove the expired access token — ProtectedRoute will redirect
-    localStorage.removeItem("accessToken");
-    throw new Error("Session expired. Please log in again.");
+// ── SMART FETCH (using Clerk JWT) ─────────
+export async function apiFetch(url, options = {}) {
+  let token = null;
+  if (window.Clerk && window.Clerk.session) {
+    token = await window.Clerk.session.getToken();
   }
 
-  const data = await res.json();
-  localStorage.setItem("accessToken", data.access);
-  return data.access;
-}
+  const isFormData = options.body instanceof FormData;
+  const headers = {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
 
-// ── SMART FETCH (auto-retries once after refreshing token) ─────────
-export async function apiFetch(url, options = {}) {
-  const token = localStorage.getItem("accessToken");
+  const res = await fetch(url, {
+    ...options,
+    headers,
+  });
 
-  const doRequest = (tok) =>
-    fetch(url, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-        ...(tok ? { Authorization: `Bearer ${tok}` } : {}),
-      },
-    });
-
-  let res = await doRequest(token);
-
-  // Auto-refresh on 401 then retry once
   if (res.status === 401) {
-    try {
-      const newToken = await refreshAccessToken();
-      res = await doRequest(newToken);
-    } catch {
-      throw new Error("Unauthorized");
-    }
+    throw new Error("Unauthorized");
   }
 
   return res;
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────
-export async function loginUser(userData) {
-  const res = await fetch(`${BASE}/accounts/login/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData),
-  });
+export async function fetchUserProfile() {
+  const res = await apiFetch(`${BASE}/accounts/me/`);
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Login failed");
-  return data;
-}
-
-export async function retailerSignup(userData) {
-  const res = await fetch(`${BASE}/accounts/signup/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Signup failed");
+  if (!res.ok) throw new Error(data.error || "Failed to fetch profile");
   return data;
 }
 
@@ -151,7 +113,7 @@ export async function getAIInsights() {
 
 // ── ORDERS ────────────────────────────────────────────────────────
 export async function getOrders() {
-  const res = await apiFetch(`${BASE}/orders/`);
+  const res = await apiFetch(`${BASE}/inventory/orders/retailer/`);
   const data = await res.json();
   if (!res.ok) throw new Error("Failed to fetch orders");
   return data;
@@ -168,9 +130,9 @@ export async function createOrder(orderData) {
 }
 
 export async function updateOrder(orderId, updates) {
-  const res = await apiFetch(`${BASE}/orders/`, {
+  const res = await apiFetch(`${BASE}/inventory/orders/retailer/${orderId}/status/`, {
     method: "PATCH",
-    body: JSON.stringify({ order_id: orderId, ...updates }),
+    body: JSON.stringify(updates),
   });
   const data = await res.json();
   if (!res.ok) throw new Error("Failed to update order");
