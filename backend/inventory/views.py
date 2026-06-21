@@ -293,7 +293,7 @@ def upload_invoice(request):
         img = Image.open(image_file)
         if hasattr(genai, "configure"):
             genai.configure(api_key=settings.GEMINI_API_KEY)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-1.5-pro')
         else:
             return Response({"error": "Google GenAI not installed properly"}, status=500)
         
@@ -328,12 +328,23 @@ class NotificationsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from .models import CustomerOrder
+        
         products = Product.objects.filter(
             retailer=request.user
         )
 
         notifications = []
 
+        # 1. Incoming Order Notifications
+        pending_orders = CustomerOrder.objects.filter(retailer=request.user, status="pending")
+        for order in pending_orders:
+            notifications.append({
+                "type": "order",
+                "message": f"New incoming order #{order.id} for ₹{order.total_amount}. Needs review.",
+            })
+
+        # 2. Inventory Alerts
         for product in products:
             if product.current_stock <= product.reorder_level / 2:
                 notifications.append({
@@ -416,38 +427,27 @@ class AIInsightsView(APIView):
                 
                 prompt = f"""
                 You are an expert AI retail consultant for Kirana store owners in India.
-                Analyze the following inventory data and provide exactly 3 distinct, actionable insights.
-                Focus on forecasting demand, optimizing capital, or preventing stockouts.
+                Analyze the following real-time inventory data and write a detailed, highly structured Markdown report.
+                Include:
+                1. A brief executive summary.
+                2. Critical Restock Alerts (if any).
+                3. Capital Optimization Opportunities (e.g. overstocked items).
+                4. Strategic Retail Advice.
+                
+                Use headings (##), bold text (**), and bullet points to make it extremely readable.
                 
                 Inventory Data:
                 {json.dumps(inventory_data)}
-                
-                Return ONLY a JSON array. Each object in the array MUST have:
-                - "type": string (must be exactly "critical", "warning", "overstock", or "healthy")
-                - "title": string (a short, catchy title)
-                - "message": string (1-2 sentences of specific, actionable advice mentioning the product names)
-                
-                Do not include any markdown formatting or extra text.
                 """
                 
                 response = model.generate_content(prompt)
-                text_resp = response.text.strip()
-                
-                if text_resp.startswith("```json"):
-                    text_resp = text_resp[7:]
-                if text_resp.startswith("```"):
-                    text_resp = text_resp[3:]
-                if text_resp.endswith("```"):
-                    text_resp = text_resp[:-3]
-                    
-                insights = json.loads(text_resp.strip())
-                return Response(insights)
+                return Response({"insights": response.text.strip()})
                 
             else:
-                return Response([{"type": "warning", "title": "AI Error", "message": "Google GenAI not installed properly."}])
+                return Response({"insights": "Google GenAI is not installed properly."})
         except Exception as e:
             print("Gemini Insight Error:", e)
-            return Response([{"type": "warning", "title": "AI Unavailable", "message": "Failed to generate AI insights right now."}])
+            return Response({"insights": "Failed to generate AI insights right now."})
 
 from .models import CustomerOrder, OrderItem
 from .serializers import CustomerOrderSerializer
@@ -527,4 +527,97 @@ class UpdateOrderStatusView(APIView):
                 return Response(CustomerOrderSerializer(order).data)
             return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
         except CustomerOrder.DoesNotExist:
+            return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+
+from .models import SupplierOrder, SupplierOrderItem
+from .serializers import SupplierOrderSerializer
+
+class CreateSupplierOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        distributor_name = data.get("distributor_name")
+        items = data.get("items", []) # [{"name": "...", "brand": "...", "quantity": 10, "price": 100}]
+
+        if not distributor_name or not items:
+            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            with transaction.atomic():
+                order = SupplierOrder.objects.create(
+                    retailer=request.user,
+                    distributor_name=distributor_name,
+                    status="pending",
+                    total_amount=0
+                )
+                
+                total = 0
+                for item in items:
+                    qty = int(item["quantity"])
+                    price = float(item["price"])
+                    SupplierOrderItem.objects.create(
+                        order=order,
+                        product_name=item["name"],
+                        brand=item.get("brand", ""),
+                        quantity=qty,
+                        unit_price=price
+                    )
+                    total += (price * qty)
+                
+                order.total_amount = total
+                order.save()
+                
+                return Response(SupplierOrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_BAD_REQUEST)
+
+class ListSupplierOrdersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = SupplierOrder.objects.filter(retailer=request.user).order_by("-created_at")
+        return Response(SupplierOrderSerializer(orders, many=True).data)
+
+class UpdateSupplierOrderStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, order_id):
+        try:
+            order = SupplierOrder.objects.get(id=order_id, retailer=request.user)
+            new_status = request.data.get("status")
+            
+            if new_status not in dict(SupplierOrder.STATUS_CHOICES):
+                return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # If moving to delivered for the FIRST time
+            if new_status == "delivered" and order.status != "delivered":
+                with transaction.atomic():
+                    order.status = new_status
+                    order.save()
+
+                    # Increment inventory automatically!
+                    for item in order.items.all():
+                        # Try to find an existing product by name for this retailer
+                        product = Product.objects.filter(retailer=request.user, name__iexact=item.product_name).first()
+                        if product:
+                            product.current_stock += item.quantity
+                            product.save()
+                        else:
+                            # Create new product
+                            Product.objects.create(
+                                retailer=request.user,
+                                name=item.product_name,
+                                sku=f"SKU-{item.product_name.replace(' ', '-').upper()}-{item.id}",
+                                category="groceries", # default
+                                current_stock=item.quantity,
+                                unit_price=item.unit_price * 1.2, # Add some default margin
+                                supplier=order.distributor_name
+                            )
+            else:
+                order.status = new_status
+                order.save()
+
+            return Response(SupplierOrderSerializer(order).data)
+        except SupplierOrder.DoesNotExist:
             return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)

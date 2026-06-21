@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Search, ShoppingCart, TrendingUp, PackageOpen } from "lucide-react";
 import RetailerLayout from "../../layouts/RetailerLayout";
+import { createSupplierOrder } from "../../services/auth";
 
 const MOCK_DISTRIBUTORS = [
   { id: 1, name: "Reliance B2B", rating: 4.8, type: "Groceries & FMCG" },
@@ -19,20 +20,44 @@ const MOCK_CATALOG = [
 
 function Distributors() {
   const [search, setSearch] = useState("");
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState({});
 
   const addToCart = (product) => {
-    setCart([...cart, product]);
-    alert(`${product.name} added to purchase order!`);
+    setCart(prev => {
+      const existing = prev[product.id];
+      const newQty = existing ? existing.quantity + product.min_qty : product.min_qty;
+      return { ...prev, [product.id]: { ...product, quantity: newQty } };
+    });
+    alert(`${product.name} (Qty: ${product.min_qty}) added to purchase order!`);
   };
 
-  const placeOrder = () => {
-    if (cart.length === 0) return;
-    alert(`B2B Order placed successfully for ${cart.length} items! Your inventory will be updated upon delivery.`);
-    setCart([]);
+  const placeOrder = async () => {
+    const items = Object.values(cart);
+    if (items.length === 0) return;
+    
+    // For simplicity, pick the distributor of the first item in the cart
+    const distId = items[0].distId;
+    const distributor = MOCK_DISTRIBUTORS.find(d => d.id === distId)?.name || "General Wholesale";
+
+    try {
+      await createSupplierOrder({
+        distributor_name: distributor,
+        items: items.map(i => ({
+          name: i.name,
+          brand: i.brand,
+          quantity: i.quantity,
+          price: i.price
+        }))
+      });
+      alert(`Purchase Order sent to ${distributor} for ${items.length} unique items! Check the Orders tab to receive delivery.`);
+      setCart({});
+    } catch (err) {
+      alert("Failed to place B2B Order: " + err.message);
+    }
   };
 
   const filtered = MOCK_CATALOG.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase()));
+  const totalItems = Object.values(cart).reduce((acc, i) => acc + i.quantity, 0);
 
   return (
     <RetailerLayout>
@@ -46,7 +71,7 @@ function Distributors() {
           className="bg-orange-500 text-white px-6 py-4 rounded-2xl flex items-center gap-2 hover:bg-orange-600 transition font-bold"
         >
           <ShoppingCart className="w-5 h-5" />
-          Checkout ({cart.length})
+          Checkout ({totalItems})
         </button>
       </div>
 

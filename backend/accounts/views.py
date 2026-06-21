@@ -32,3 +32,22 @@ def onboard_retailer(request):
         serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET", "PATCH"])
+@permission_classes([IsAuthenticated])
+def retailer_profile_view(request):
+    try:
+        profile = request.user.retailer_profile
+    except RetailerProfile.DoesNotExist:
+        return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == "GET":
+        serializer = RetailerProfileSerializer(profile)
+        return Response(serializer.data)
+    
+    elif request.method == "PATCH":
+        serializer = RetailerProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

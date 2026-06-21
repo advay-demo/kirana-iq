@@ -3,6 +3,7 @@ import {
   Bell,
   AlertTriangle,
   PackageCheck,
+  ShoppingBag,
 } from "lucide-react";
 import RetailerLayout from "../../layouts/RetailerLayout";
 import { getNotifications } from "../../services/auth";
@@ -57,60 +58,72 @@ function Notifications() {
           </div>
 
           <h2 className="text-3xl font-semibold mt-8">
-            All inventory looks healthy 🎉
+            All caught up! 🎉
           </h2>
 
           <p className="text-gray-500 mt-4 text-lg">
-            No low-stock or critical alerts right now.
+            No pending orders or low-stock alerts right now.
           </p>
         </div>
       ) : (
         <div className="mt-10 flex flex-col gap-5">
           {notifications.map((notification, index) => {
-            const isCritical =
-              notification.type === "critical";
+            const isCritical = notification.type === "critical";
+            const isOrder = notification.type === "order";
+            const isLow = notification.type === "low";
+
+            // Determine styling based on type
+            let containerStyle = "";
+            let iconBgStyle = "";
+            let iconTextStyle = "";
+            let badgeStyle = "";
+            let title = "";
+            let IconComponent = AlertTriangle;
+
+            if (isOrder) {
+              containerStyle = "bg-purple-50 border-purple-200";
+              iconBgStyle = "bg-purple-100";
+              iconTextStyle = "text-purple-600";
+              badgeStyle = "bg-purple-200 text-purple-800";
+              title = "Incoming Order";
+              IconComponent = ShoppingBag;
+            } else if (isCritical) {
+              containerStyle = "bg-red-50 border-red-200";
+              iconBgStyle = "bg-red-100";
+              iconTextStyle = "text-red-500";
+              badgeStyle = "bg-red-200 text-red-700";
+              title = "Critical Alert";
+              IconComponent = AlertTriangle;
+            } else {
+              containerStyle = "bg-orange-50 border-orange-200";
+              iconBgStyle = "bg-orange-100";
+              iconTextStyle = "text-orange-500";
+              badgeStyle = "bg-orange-200 text-orange-700";
+              title = "Low Stock Alert";
+              IconComponent = AlertTriangle;
+            }
 
             return (
               <div
                 key={index}
-                className={`rounded-3xl p-6 border shadow-sm flex items-center gap-5 ${
-                  isCritical
-                    ? "bg-red-50 border-red-200"
-                    : "bg-orange-50 border-orange-200"
-                }`}
+                className={`rounded-3xl p-6 border shadow-sm flex items-center gap-5 transition-transform hover:-translate-y-1 ${containerStyle}`}
               >
                 <div
-                  className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
-                    isCritical
-                      ? "bg-red-100"
-                      : "bg-orange-100"
-                  }`}
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center ${iconBgStyle}`}
                 >
-                  <AlertTriangle
-                    className={`w-8 h-8 ${
-                      isCritical
-                        ? "text-red-500"
-                        : "text-orange-500"
-                    }`}
-                  />
+                  <IconComponent className={`w-8 h-8 ${iconTextStyle}`} />
                 </div>
 
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
                     <h3 className="text-xl font-semibold">
-                      {isCritical
-                        ? "Critical Alert"
-                        : "Low Stock Alert"}
+                      {title}
                     </h3>
 
                     <span
-                      className={`text-xs px-3 py-1 rounded-full font-medium ${
-                        isCritical
-                          ? "bg-red-200 text-red-700"
-                          : "bg-orange-200 text-orange-700"
-                      }`}
+                      className={`text-xs px-3 py-1 rounded-full font-bold ${badgeStyle}`}
                     >
-                      {notification.type.toUpperCase()}
+                      {isOrder ? "NEW" : notification.type.toUpperCase()}
                     </span>
                   </div>
 

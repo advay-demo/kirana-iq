@@ -11,7 +11,10 @@ from .views import (
     upload_invoice,
     CreateOrderView,
     RetailerOrdersView,
-    UpdateOrderStatusView
+    UpdateOrderStatusView,
+    CreateSupplierOrderView,
+    ListSupplierOrdersView,
+    UpdateSupplierOrderStatusView
 )
 
 urlpatterns = [
@@ -27,4 +30,7 @@ urlpatterns = [
     path("orders/create/", CreateOrderView.as_view()),
     path("orders/retailer/", RetailerOrdersView.as_view()),
     path("orders/retailer/<int:order_id>/status/", UpdateOrderStatusView.as_view()),
+    path("supplier-orders/create/", CreateSupplierOrderView.as_view()),
+    path("supplier-orders/", ListSupplierOrdersView.as_view()),
+    path("supplier-orders/<int:order_id>/status/", UpdateSupplierOrderStatusView.as_view()),
 ]

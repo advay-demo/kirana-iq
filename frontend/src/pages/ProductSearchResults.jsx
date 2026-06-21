@@ -109,8 +109,8 @@ function ProductSearchResults() {
     }
   };
 
-  const defaultLat = locationState.lat || 28.6139;
-  const defaultLng = locationState.lng || 77.2090;
+  const defaultLat = locationState.lat || 19.0760;
+  const defaultLng = locationState.lng || 72.8777;
 
   // Cart Functions
   const updateCart = (product, delta) => {
@@ -162,7 +162,7 @@ function ProductSearchResults() {
 
   return (
     <MainLayout>
-      <div className="max-w-7xl mx-auto px-4 py-10 relative">
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-10 relative">
 
         {/* Floating Cart Button */}
         {cartTotalQty > 0 && (
