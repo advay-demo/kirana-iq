@@ -7,6 +7,7 @@ import {
   Settings,
   Brain,
   ShoppingCart,
+  Truck,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getNotifications } from "../services/auth";
@@ -46,41 +47,41 @@ const fetchNotificationCount = async () => {
       path: "/retailer/dashboard",
       icon: LayoutDashboard,
     },
-
     {
       name: "Inventory",
       path: "/retailer/inventory",
       icon: Package,
     },
-
     {
       name: "Analytics",
       path: "/retailer/analytics",
       icon: BarChart3,
     },
-    
     {
       name: "AI Insights",
       path: "/retailer/ai-insights",
       icon: Brain,
     },
-
     {
       name: "Notifications",
       path: "/retailer/notifications",
       icon: Bell,
       count: notificationCount,
     },
-
-    {
-      name: "Settings",
-      path: "/retailer/settings",
-      icon: Settings,
-    },
     {
       name: "Orders",
       path: "/retailer/orders",
       icon: ShoppingCart,
+    },
+    {
+      name: "Distributors",
+      path: "/retailer/distributors",
+      icon: Truck,
+    },
+    {
+      name: "Settings",
+      path: "/retailer/settings",
+      icon: Settings,
     },
   ];
 

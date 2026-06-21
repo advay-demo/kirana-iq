@@ -27,6 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-l6%a=5x4$+yj5uj-!h7@(%g(wq%47&c2!2cnz$k7!#i#jhq1x)'
 
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -142,7 +143,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "accounts.authentication.ClerkAuthentication",
     ),
 }
 AUTH_USER_MODEL = "accounts.User"
