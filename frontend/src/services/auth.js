@@ -1,4 +1,4 @@
-const BASE = "http://127.0.0.1:8001/api";
+const BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8001/api";
 
 // ── SMART FETCH (using Clerk JWT) ─────────
 export async function apiFetch(url, options = {}) {
@@ -136,6 +136,21 @@ export async function updateOrder(orderId, updates) {
   });
   const data = await res.json();
   if (!res.ok) throw new Error("Failed to update order");
+  return data;
+}
+
+// ── DISTRIBUTORS ──────────────────────────────────────────────────
+export async function getDistributors() {
+  const res = await apiFetch(`${BASE}/inventory/distributors/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch distributors");
+  return data;
+}
+
+export async function getDistributorCatalog() {
+  const res = await apiFetch(`${BASE}/inventory/distributors/catalog/`);
+  const data = await res.json();
+  if (!res.ok) throw new Error("Failed to fetch catalog");
   return data;
 }
 

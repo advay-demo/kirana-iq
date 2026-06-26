@@ -102,3 +102,22 @@ class SupplierOrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product_name}"
+
+class Distributor(models.Model):
+    name = models.CharField(max_length=255)
+    rating = models.DecimalField(max_digits=3, decimal_places=1)
+    category_type = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class DistributorCatalogItem(models.Model):
+    distributor = models.ForeignKey(Distributor, on_delete=models.CASCADE, related_name="catalog")
+    brand = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    mrp = models.DecimalField(max_digits=10, decimal_places=2)
+    min_qty = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.brand} - {self.name}"

@@ -1,26 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, ShoppingCart, TrendingUp, PackageOpen } from "lucide-react";
 import RetailerLayout from "../../layouts/RetailerLayout";
-import { createSupplierOrder } from "../../services/auth";
-
-const MOCK_DISTRIBUTORS = [
-  { id: 1, name: "Reliance B2B", rating: 4.8, type: "Groceries & FMCG" },
-  { id: 2, name: "Udaan Wholesale", rating: 4.5, type: "Snacks & Beverages" },
-  { id: 3, name: "Metro Cash & Carry", rating: 4.9, type: "All Categories" }
-];
-
-const MOCK_CATALOG = [
-  { id: 101, brand: "Parle", name: "Parle-G Gold 1kg", price: 95, mrp: 120, min_qty: 10, distId: 1 },
-  { id: 102, brand: "Britannia", name: "Good Day Cashew", price: 40, mrp: 50, min_qty: 20, distId: 1 },
-  { id: 103, brand: "Aashirvaad", name: "Select Wheat Atta 5kg", price: 240, mrp: 280, min_qty: 5, distId: 3 },
-  { id: 104, brand: "Haldiram", name: "Bhujia Sev 1kg", price: 210, mrp: 260, min_qty: 10, distId: 2 },
-  { id: 105, brand: "Amul", name: "Pure Ghee 1L", price: 540, mrp: 600, min_qty: 6, distId: 1 },
-  { id: 106, brand: "Coca-Cola", name: "Thums Up 2L x 6", price: 480, mrp: 540, min_qty: 2, distId: 2 },
-];
+import { createSupplierOrder, getDistributors, getDistributorCatalog } from "../../services/auth";
 
 function Distributors() {
+  const [distributors, setDistributors] = useState([]);
+  const [catalog, setCatalog] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState({});
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const dists = await getDistributors();
+        const cat = await getDistributorCatalog();
+        setDistributors(dists);
+        setCatalog(cat);
+      } catch (e) {
+        console.error("Failed to load distributors", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   const addToCart = (product) => {
     setCart(prev => {
@@ -36,12 +41,12 @@ function Distributors() {
     if (items.length === 0) return;
     
     // For simplicity, pick the distributor of the first item in the cart
-    const distId = items[0].distId;
-    const distributor = MOCK_DISTRIBUTORS.find(d => d.id === distId)?.name || "General Wholesale";
+    const distId = items[0].distributor;
+    const distributorName = distributors.find(d => d.id === distId)?.name || "General Wholesale";
 
     try {
       await createSupplierOrder({
-        distributor_name: distributor,
+        distributor_name: distributorName,
         items: items.map(i => ({
           name: i.name,
           brand: i.brand,
@@ -49,15 +54,23 @@ function Distributors() {
           price: i.price
         }))
       });
-      alert(`Purchase Order sent to ${distributor} for ${items.length} unique items! Check the Orders tab to receive delivery.`);
+      alert(`Purchase Order sent to ${distributorName} for ${items.length} unique items! Check the Orders tab to receive delivery.`);
       setCart({});
     } catch (err) {
       alert("Failed to place B2B Order: " + err.message);
     }
   };
 
-  const filtered = MOCK_CATALOG.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase()));
+  const filtered = catalog.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase()));
   const totalItems = Object.values(cart).reduce((acc, i) => acc + i.quantity, 0);
+
+  if (loading) {
+    return (
+      <RetailerLayout>
+        <div className="text-2xl font-medium">Loading Marketplace...</div>
+      </RetailerLayout>
+    );
+  }
 
   return (
     <RetailerLayout>
@@ -77,14 +90,14 @@ function Distributors() {
 
       {/* Distributors */}
       <div className="grid md:grid-cols-3 gap-6 mb-12">
-        {MOCK_DISTRIBUTORS.map(d => (
+        {distributors.map(d => (
           <div key={d.id} className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex items-center gap-4">
             <div className="bg-blue-50 p-4 rounded-2xl text-blue-600">
               <PackageOpen className="w-8 h-8" />
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900">{d.name}</h3>
-              <p className="text-sm text-gray-500">{d.type} • ⭐ {d.rating}</p>
+              <p className="text-sm text-gray-500">{d.category_type} • ⭐ {d.rating}</p>
             </div>
           </div>
         ))}

@@ -4,7 +4,7 @@ import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import ForgotPassword from "./pages/ForgotPassword";
+import NotFound from "./pages/NotFound";
 
 import Features from "./pages/Features";
 import Pricing from "./pages/Pricing";
@@ -77,7 +77,9 @@ function App() {
   path="/products/search"
   element={<ProductSearchResults />}
 />
-      
+
+      {/* 404 Catch-All */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
     
   );

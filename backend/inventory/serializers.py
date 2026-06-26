@@ -39,3 +39,17 @@ class SupplierOrderSerializer(serializers.ModelSerializer):
         model = SupplierOrder
         fields = "__all__"
         read_only_fields = ["retailer", "total_amount", "created_at"]
+
+from .models import Distributor, DistributorCatalogItem
+
+class DistributorCatalogItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DistributorCatalogItem
+        fields = "__all__"
+
+class DistributorSerializer(serializers.ModelSerializer):
+    catalog = DistributorCatalogItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Distributor
+        fields = ["id", "name", "rating", "category_type", "catalog"]
