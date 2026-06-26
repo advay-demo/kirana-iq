@@ -1,0 +1,151 @@
+import React, { useState, useEffect } from "react";
+import { Search, ShoppingCart, TrendingUp, PackageOpen } from "lucide-react";
+import RetailerLayout from "../../layouts/RetailerLayout";
+import { createSupplierOrder, getDistributors, getDistributorCatalog } from "../../services/auth";
+
+function Distributors() {
+  const [distributors, setDistributors] = useState([]);
+  const [catalog, setCatalog] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [search, setSearch] = useState("");
+  const [cart, setCart] = useState({});
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const dists = await getDistributors();
+        const cat = await getDistributorCatalog();
+        setDistributors(dists);
+        setCatalog(cat);
+      } catch (e) {
+        console.error("Failed to load distributors", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const addToCart = (product) => {
+    setCart(prev => {
+      const existing = prev[product.id];
+      const newQty = existing ? existing.quantity + product.min_qty : product.min_qty;
+      return { ...prev, [product.id]: { ...product, quantity: newQty } };
+    });
+    alert(`${product.name} (Qty: ${product.min_qty}) added to purchase order!`);
+  };
+
+  const placeOrder = async () => {
+    const items = Object.values(cart);
+    if (items.length === 0) return;
+    
+    // For simplicity, pick the distributor of the first item in the cart
+    const distId = items[0].distributor;
+    const distributorName = distributors.find(d => d.id === distId)?.name || "General Wholesale";
+
+    try {
+      await createSupplierOrder({
+        distributor_name: distributorName,
+        items: items.map(i => ({
+          name: i.name,
+          brand: i.brand,
+          quantity: i.quantity,
+          price: i.price
+        }))
+      });
+      alert(`Purchase Order sent to ${distributorName} for ${items.length} unique items! Check the Orders tab to receive delivery.`);
+      setCart({});
+    } catch (err) {
+      alert("Failed to place B2B Order: " + err.message);
+    }
+  };
+
+  const filtered = catalog.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase()));
+  const totalItems = Object.values(cart).reduce((acc, i) => acc + i.quantity, 0);
+
+  if (loading) {
+    return (
+      <RetailerLayout>
+        <div className="text-2xl font-medium">Loading Marketplace...</div>
+      </RetailerLayout>
+    );
+  }
+
+  return (
+    <RetailerLayout>
+      <div className="flex items-center justify-between mb-10">
+        <div>
+          <h1 className="text-4xl font-semibold tracking-tight">Distributor Marketplace</h1>
+          <p className="text-gray-500 mt-2 text-lg">Order inventory directly from top B2B suppliers.</p>
+        </div>
+        <button 
+          onClick={placeOrder}
+          className="bg-orange-500 text-white px-6 py-4 rounded-2xl flex items-center gap-2 hover:bg-orange-600 transition font-bold"
+        >
+          <ShoppingCart className="w-5 h-5" />
+          Checkout ({totalItems})
+        </button>
+      </div>
+
+      {/* Distributors */}
+      <div className="grid md:grid-cols-3 gap-6 mb-12">
+        {distributors.map(d => (
+          <div key={d.id} className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex items-center gap-4">
+            <div className="bg-blue-50 p-4 rounded-2xl text-blue-600">
+              <PackageOpen className="w-8 h-8" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">{d.name}</h3>
+              <p className="text-sm text-gray-500">{d.category_type} • ⭐ {d.rating}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="relative flex-1">
+            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search FMCG catalog..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-orange-500 outline-none"
+            />
+          </div>
+          <button className="bg-gray-100 text-gray-700 px-6 py-4 rounded-2xl font-semibold flex items-center gap-2">
+            <TrendingUp className="w-5 h-5" /> Fast Movers
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map(p => (
+            <div key={p.id} className="border border-gray-100 rounded-2xl p-6 hover:shadow-md transition bg-gray-50/50">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{p.brand}</div>
+              <h4 className="font-bold text-gray-900 text-lg mb-4">{p.name}</h4>
+              <div className="flex justify-between items-end mb-6">
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">₹{p.price} <span className="text-sm text-gray-400 font-normal">/ unit</span></div>
+                  <div className="text-sm text-green-600 font-medium mt-1">Margin: {Math.round(((p.mrp - p.price) / p.mrp) * 100)}% (MRP ₹{p.mrp})</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-gray-500 bg-gray-200 px-3 py-2 rounded-xl">Min: {p.min_qty}</span>
+                <button 
+                  onClick={() => addToCart(p)}
+                  className="flex-1 bg-gray-900 text-white py-2 rounded-xl font-medium hover:bg-black transition"
+                >
+                  Add to Order
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </RetailerLayout>
+  );
+}
+
+export default Distributors;

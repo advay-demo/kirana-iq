@@ -8,6 +8,15 @@ from .views import (
     AIInsightsView,
     ProductSearchView,
     ProductSuggestView,
+    upload_invoice,
+    CreateOrderView,
+    RetailerOrdersView,
+    UpdateOrderStatusView,
+    CreateSupplierOrderView,
+    ListSupplierOrdersView,
+    UpdateSupplierOrderStatusView,
+    DistributorListView,
+    DistributorCatalogView
 )
 
 urlpatterns = [
@@ -19,4 +28,13 @@ urlpatterns = [
     path("ai-insights/", AIInsightsView.as_view()),
     path("search/", ProductSearchView.as_view()),
     path("suggest/", ProductSuggestView.as_view()),
+    path("upload-invoice/", upload_invoice, name="upload_invoice"),
+    path("orders/create/", CreateOrderView.as_view()),
+    path("orders/retailer/", RetailerOrdersView.as_view()),
+    path("orders/retailer/<int:order_id>/status/", UpdateOrderStatusView.as_view()),
+    path("supplier-orders/create/", CreateSupplierOrderView.as_view()),
+    path("supplier-orders/", ListSupplierOrdersView.as_view()),
+    path("supplier-orders/<int:order_id>/status/", UpdateSupplierOrderStatusView.as_view()),
+    path("distributors/", DistributorListView.as_view()),
+    path("distributors/catalog/", DistributorCatalogView.as_view()),
 ]

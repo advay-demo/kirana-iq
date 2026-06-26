@@ -136,7 +136,7 @@ export default function Home() {
     if (query.length < 2) { setSuggestions([]); return; }
     const t = setTimeout(async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:8001/api/inventory/suggest/?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8001/api"}/inventory/suggest/?q=${encodeURIComponent(query)}`);
         const data = await res.json();
         setSuggestions(data);
         setShowSug(true);
@@ -611,9 +611,9 @@ export default function Home() {
             <span>© {new Date().getFullYear()} KiranaIQ</span>
             <div className="flex items-center gap-4">
               <span className="text-gray-400">Connect:</span>
-              <a href="https://linkedin.com/in/YOUR_ID" target="_blank" rel="noreferrer" className="hover:text-black">LinkedIn</a>
-              <a href="https://github.com/YOUR_ID" target="_blank" rel="noreferrer" className="hover:text-black">GitHub</a>
-              <a href="mailto:your@email.com" className="hover:text-black">Mail</a>
+              <a href="https://linkedin.com/in/advaybhagat" target="_blank" rel="noreferrer" className="hover:text-black">LinkedIn</a>
+              <a href="https://github.com/advay-demo" target="_blank" rel="noreferrer" className="hover:text-black">GitHub</a>
+              <a href="mailto:hello@kiranaiq.com" className="hover:text-black">Mail</a>
             </div>
           </div>
         </div>
