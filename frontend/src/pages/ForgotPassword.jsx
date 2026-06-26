@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import AuthNavbar from "../components/AuthNavbar";
-import AuthFooter from "../components/AuthFooter";
+import AuthNavbar from "../components/authnavbar";
+import AuthFooter from "../components/authfooter";
 import retailer from "../assets/images/retailer.jpg";
 import { Link, useNavigate } from "react-router-dom";
 

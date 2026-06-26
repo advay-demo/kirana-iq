@@ -1,23 +1,23 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Home from "./pages/home";
+import Login from "./pages/login";
+import Signup from "./pages/signup";
 import NotFound from "./pages/NotFound";
 
-import Features from "./pages/Features";
-import Pricing from "./pages/Pricing";
-import HowItWorks from "./pages/HowItWorks";
-import Dashboard from "./pages/retailer/Dashboard";
-import Inventory from "./pages/retailer/Inventory";
-import Analytics from "./pages/retailer/Analytics";
-import Notifications from "./pages/retailer/Notifications";
-import Settings from "./pages/retailer/Settings";
+import Features from "./pages/features";
+import Pricing from "./pages/pricing";
+import HowItWorks from "./pages/howitworks";
+import Dashboard from "./pages/retailer/dashboard";
+import Inventory from "./pages/retailer/inventory";
+import Analytics from "./pages/retailer/analytics";
+import Notifications from "./pages/retailer/notifications";
+import Settings from "./pages/retailer/settings";
 import ProductDetails from "./pages/retailer/ProductDetails";
 import AIInsights from "./pages/retailer/AIInsights";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Orders from "./pages/retailer/Orders";
+import Orders from "./pages/retailer/orders";
 import ProductSearchResults from "./pages/ProductSearchResults";
 import Onboarding from "./pages/retailer/Onboarding";
 import Distributors from "./pages/retailer/Distributors";
