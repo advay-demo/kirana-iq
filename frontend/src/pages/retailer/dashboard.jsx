@@ -20,12 +20,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  };
+
 
   const displayName = user?.firstName || localStorage.getItem("userName") || "Retailer";
 
@@ -60,7 +55,7 @@ function Dashboard() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-5xl font-semibold tracking-tight">
-            {getGreeting()}, {displayName} 👋
+            Welcome back, {displayName}
           </h1>
 
           <p className="text-gray-500 mt-3 text-lg">
