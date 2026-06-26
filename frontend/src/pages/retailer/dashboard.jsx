@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import RetailerLayout from "../../layouts/RetailerLayout";
 import { getDashboardStats } from "../../services/auth";
+import { useUser } from "@clerk/react";
 
 function Dashboard() {
   const [stats, setStats] = useState({
@@ -17,6 +18,16 @@ function Dashboard() {
   });
 
   const [loading, setLoading] = useState(true);
+  const { user } = useUser();
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const displayName = user?.firstName || localStorage.getItem("userName") || "Retailer";
 
   useEffect(() => {
     fetchDashboardStats();
@@ -49,7 +60,7 @@ function Dashboard() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-5xl font-semibold tracking-tight">
-            Good evening, Advay 👋
+            {getGreeting()}, {displayName} 👋
           </h1>
 
           <p className="text-gray-500 mt-3 text-lg">

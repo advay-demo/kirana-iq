@@ -6,7 +6,6 @@ from django.db.models import Q
 import random
 import requests
 import json
-import io
 try:
     import google.generativeai as genai
     from PIL import Image
@@ -268,9 +267,9 @@ class ProductDetailView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    def delete(self, request, pk):
+    def delete(self, request, product_id):
         try:
-            product = Product.objects.get(pk=pk, retailer=request.user)
+            product = Product.objects.get(pk=product_id, retailer=request.user)
             product.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Product.DoesNotExist:
@@ -504,7 +503,7 @@ class CreateOrderView(APIView):
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error": "Server Error"}, status=status.HTTP_500_BAD_REQUEST)
+            return Response({"error": "Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RetailerOrdersView(APIView):
     permission_classes = [IsAuthenticated]
@@ -570,7 +569,7 @@ class CreateSupplierOrderView(APIView):
                 
                 return Response(SupplierOrderSerializer(order).data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ListSupplierOrdersView(APIView):
     permission_classes = [IsAuthenticated]
@@ -621,3 +620,22 @@ class UpdateSupplierOrderStatusView(APIView):
             return Response(SupplierOrderSerializer(order).data)
         except SupplierOrder.DoesNotExist:
             return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+
+from .models import Distributor, DistributorCatalogItem
+from .serializers import DistributorSerializer, DistributorCatalogItemSerializer
+
+class DistributorListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        distributors = Distributor.objects.all()
+        serializer = DistributorSerializer(distributors, many=True)
+        return Response(serializer.data)
+
+class DistributorCatalogView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        items = DistributorCatalogItem.objects.all()
+        serializer = DistributorCatalogItemSerializer(items, many=True)
+        return Response(serializer.data)

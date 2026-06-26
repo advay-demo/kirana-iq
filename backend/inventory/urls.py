@@ -14,7 +14,9 @@ from .views import (
     UpdateOrderStatusView,
     CreateSupplierOrderView,
     ListSupplierOrdersView,
-    UpdateSupplierOrderStatusView
+    UpdateSupplierOrderStatusView,
+    DistributorListView,
+    DistributorCatalogView
 )
 
 urlpatterns = [
@@ -33,4 +35,6 @@ urlpatterns = [
     path("supplier-orders/create/", CreateSupplierOrderView.as_view()),
     path("supplier-orders/", ListSupplierOrdersView.as_view()),
     path("supplier-orders/<int:order_id>/status/", UpdateSupplierOrderStatusView.as_view()),
+    path("distributors/", DistributorListView.as_view()),
+    path("distributors/catalog/", DistributorCatalogView.as_view()),
 ]

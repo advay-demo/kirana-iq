@@ -125,7 +125,7 @@ function Inventory() {
     uploadData.append("image", file);
 
     try {
-      const res = await apiFetch("http://127.0.0.1:8001/api/inventory/upload-invoice/", {
+      const res = await apiFetch(`${(import.meta.env.VITE_API_URL || "http://127.0.0.1:8001/api")}/inventory/upload-invoice/`, {
         method: "POST",
         body: uploadData, // no Content-Type so browser sets multipart/form-data
       });

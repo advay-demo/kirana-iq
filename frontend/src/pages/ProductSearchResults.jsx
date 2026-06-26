@@ -50,19 +50,34 @@ function ProductSearchResults() {
     setLoading(true);
     setLocationState(p => ({ ...p, state: 'pending' }));
 
+    const fallbackToIP = async () => {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        if (data.latitude && data.longitude) {
+          setLocationState({ state: 'success', lat: data.latitude, lng: data.longitude });
+        } else {
+          setLocationState({ state: 'failed', lat: null, lng: null });
+        }
+      } catch (err) {
+        console.warn("IP geolocation fallback failed:", err);
+        setLocationState({ state: 'failed', lat: null, lng: null });
+      }
+    };
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setLocationState({ state: 'success', lat: pos.coords.latitude, lng: pos.coords.longitude });
         },
         (err) => {
-          console.warn("Geolocation blocked/failed:", err);
-          setLocationState({ state: 'failed', lat: null, lng: null });
+          console.warn("Geolocation blocked/failed, trying IP fallback:", err);
+          fallbackToIP();
         },
-        { timeout: 5000 }
+        { timeout: 5000, enableHighAccuracy: true }
       );
     } else {
-      setLocationState({ state: 'failed', lat: null, lng: null });
+      fallbackToIP();
     }
   }, [query]);
 
@@ -70,7 +85,7 @@ function ProductSearchResults() {
   useEffect(() => {
     if (!query || locationState.state === 'pending') return;
     
-    let url = `http://127.0.0.1:8001/api/inventory/search/?q=${encodeURIComponent(query)}`;
+    let url = `${import.meta.env.VITE_API_URL || "http://127.0.0.1:8001/api"}/inventory/search/?q=${encodeURIComponent(query)}`;
     if (locationState.lat && locationState.lng) {
       url += `&lat=${locationState.lat}&lng=${locationState.lng}`;
     }
@@ -86,7 +101,7 @@ function ProductSearchResults() {
     if (searchInput.length < 2) { setSuggestions([]); return; }
     const t = setTimeout(async () => {
       try {
-        const res = await fetch(`http://127.0.0.1:8001/api/inventory/suggest/?q=${encodeURIComponent(searchInput)}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8001/api"}/inventory/suggest/?q=${encodeURIComponent(searchInput)}`);
         setSuggestions(await res.json());
         setShowSuggestions(true);
       } catch { setSuggestions([]); }
@@ -109,8 +124,8 @@ function ProductSearchResults() {
     }
   };
 
-  const defaultLat = locationState.lat || 19.0760;
-  const defaultLng = locationState.lng || 72.8777;
+  const defaultLat = locationState.lat || 23.2599;
+  const defaultLng = locationState.lng || 77.4126;
 
   // Cart Functions
   const updateCart = (product, delta) => {
@@ -137,7 +152,7 @@ function ProductSearchResults() {
     const retailer_id = items[0].retailer_id;
     
     try {
-      const res = await fetch("http://127.0.0.1:8001/api/inventory/orders/create/", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8001/api"}/inventory/orders/create/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

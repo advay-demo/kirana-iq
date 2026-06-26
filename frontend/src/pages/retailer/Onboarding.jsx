@@ -49,7 +49,7 @@ export default function Onboarding() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await apiFetch("http://127.0.0.1:8001/api/accounts/onboard/", {
+      await apiFetch(`${(import.meta.env.VITE_API_URL || "http://127.0.0.1:8001/api")}/accounts/onboard/`, {
         method: "POST",
         body: JSON.stringify(formData),
       });
